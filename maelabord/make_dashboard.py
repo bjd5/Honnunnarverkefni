@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Býr til mælaborð (mælaborð/maelabord.html) með gögnunum úr data/ innbyggðum.
+"""Býr til mælaborð (maelabord/maelabord.html) með gögnunum úr data/ innbyggðum.
 
 Opnið skrána í vafra (tvísmellið). Hún þarf netsamband aðeins fyrir letur.
 Einnig er hægt að draga CSV/JSON skrár inn á síðuna eftir á.
 
 Keyrsla (úr rót repo-sins eða úr þessari möppu):
-    python3 mælaborð/make_dashboard.py          -> mælaborð/maelabord.html      (ykkar mælingar)
-    python3 mælaborð/make_dashboard.py --sim    -> mælaborð/maelabord_sim.html  (hermir)
+    python3 maelabord/make_dashboard.py          -> maelabord/maelabord.html      (ykkar mælingar)
+    python3 maelabord/make_dashboard.py --sim    -> maelabord/maelabord_sim.html  (hermir)
 """
 import argparse
 import datetime
