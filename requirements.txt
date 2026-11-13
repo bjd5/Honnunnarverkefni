@@ -1,0 +1,5 @@
+# Greining og auðkenning (identify.py, analyze.py) - keyrt á fartölvu eða Pi
+numpy
+matplotlib
+# Aðeins á Raspberry Pi (run_partN.py, step1_equilibrium.py án --sim)
+RPi.GPIO; platform_machine=="armv7l" or platform_machine=="aarch64"
