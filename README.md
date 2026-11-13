@@ -60,6 +60,7 @@ PI + feedforward → mettun 0–100 % → stilla viftu → skrá í CSV.
 | `data/` | Mæligögn: `step1_equilibrium.csv`, `model.json`, `partN_vX.csv`, `partN_vX_design.json`, `metrics.csv` |
 | `figures/` | Gröf: `step1.png`, `part1.png`, `part2.png`, `part3.png` |
 | `data_sim/`, `figures_sim/` | Sama fyrir hermi (í `.gitignore`) |
+| `mælaborð/` | Gagnvirkt mælaborð í vafra: `template.html` (síðan), `make_dashboard.py` (byggir `maelabord.html` með gögnunum innbyggðum) |
 
 ## Tengingar (BCM númerun, úr `config.py`)
 
@@ -336,6 +337,24 @@ Hönnunarkröfurnar eru hraði, lítil skekkja í jafnvægi, lítil næmni fyrir
 truflunum og hóflegt stýrimerki - og mælikvarðarnir ná utan um hvern þeirra.
 Athugið að í lið 1 hefst keyrslan eftir að aðlögun er lokið, þannig að t_s er
 þar yfirleitt 0 og munurinn á v1 og v2 sést helst í IAE/RMS og TV(u).
+
+## Mælaborð (`mælaborð/`)
+
+Gagnvirk vefsíða sem sýnir óskgildi, hitastig og stýrimerki fyrir v1 og v2 í hverjum lið, ásamt sömu mælikvörðum og `analyze.py`. Ljóst þema er sjálfgefið, með rofa fyrir dökkt.
+
+Byggja mælaborð með ykkar mælingum úr `data/` innbyggðum (býr til `mælaborð/maelabord.html`):
+
+```bash
+python3 mælaborð/make_dashboard.py
+```
+
+Sama með hermigögnum úr `data_sim/` (býr til `mælaborð/maelabord_sim.html`):
+
+```bash
+python3 mælaborð/make_dashboard.py --sim
+```
+
+Opnið HTML skrána í vafra með því að tvísmella á hana. Einnig er hægt að draga CSV/JSON skrár úr `data/` beint inn á síðuna með „Hlaða inn gögnum“. Síðan þekkir skrárnar á nafninu (`part2_v1.csv`, `step1_equilibrium.csv`, `model.json` o.s.frv.).
 
 ## Ráð fyrir myndbandið
 

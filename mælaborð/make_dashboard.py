@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Býr til mælaborð (dashboard.html) með gögnunum úr data/ innbyggðum.
+"""Býr til mælaborð (mælaborð/maelabord.html) með gögnunum úr data/ innbyggðum.
 
 Opnið skrána í vafra (tvísmellið). Hún þarf netsamband aðeins fyrir letur.
 Einnig er hægt að draga CSV/JSON skrár inn á síðuna eftir á.
 
-Keyrsla:  python3 make_dashboard.py          -> figures/dashboard.html (ykkar mælingar)
-          python3 make_dashboard.py --sim    -> figures_sim/dashboard.html (hermir)
+Keyrsla (úr rót repo-sins eða úr þessari möppu):
+    python3 mælaborð/make_dashboard.py          -> mælaborð/maelabord.html      (ykkar mælingar)
+    python3 mælaborð/make_dashboard.py --sim    -> mælaborð/maelabord_sim.html  (hermir)
 """
 import argparse
 import datetime
@@ -13,9 +14,12 @@ import glob
 import json
 import os
 
-import config
+import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+sys.path.insert(0, ROOT)
+import config  # noqa: E402
 
 
 def main():
@@ -29,7 +33,7 @@ def main():
     files = {}
     patterns = ["step1_equilibrium.csv", "model.json", "part*_v*.csv", "part*_v*_design.json"]
     for pat in patterns:
-        for p in sorted(glob.glob(os.path.join(config.DATA_DIR, pat))):
+        for p in sorted(glob.glob(os.path.join(ROOT, config.DATA_DIR, pat))):
             with open(p, encoding="utf-8") as f:
                 files[os.path.basename(p)] = f.read()
     if not files:
@@ -39,13 +43,13 @@ def main():
             "label": "%s · %d skrár · %s" % (config.DATA_DIR + "/", len(files), stamp)}
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
 
-    with open(os.path.join(HERE, "dashboard_template.html"), encoding="utf-8") as f:
+    with open(os.path.join(HERE, "template.html"), encoding="utf-8") as f:
         html = f.read().replace("__DATA__", payload)
     if not args.fragment:
         html = ('<!doctype html>\n<html lang="is">\n<head>\n<meta charset="utf-8">\n'
                 '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
                 '</head>\n<body>\n' + html + '\n</body>\n</html>\n')
-    out = args.out or os.path.join(config.FIG_DIR, "dashboard.html")
+    out = args.out or os.path.join(HERE, "maelabord_sim.html" if config.SIM else "maelabord.html")
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
         f.write(html)
