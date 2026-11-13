@@ -47,15 +47,15 @@ PI + feedforward → mettun 0–100 % → stilla viftu → skrá í CSV.
 
 | Skrá / mappa | Hlutverk |
 |---|---|
-| `config.py` | Pinnar, PWM tíðni, söfnunartími T = 1 s, öryggismörk (90 °C), möppur. `--sim` í skipanalínu beinir gögnum í `data_sim/` og `figures_sim/` |
-| `hardware.py` | `Hardware` (raunverulegur Pi: GPIO, PWM, segulrofar, DS18B20, Hall-nemi) og `SimHardware` (hermir með sama viðmóti) |
-| `controller.py` | Stakræn PID með anti-windup (back-calculation), síur (`LowPass`, `Notch`), `Controller` sem sameinar síur + feedforward + gain scheduling |
-| `design.py` | FOPDT líkan, SIMC/lambda stilling, kyrrstöðuferill u_ss(T), `PRESETS` með v1/v2 fyrir hvern lið |
-| `step1_equilibrium.py` | Liður 1B: þrep 20 → 50 → 80 % og mæling á jafnvægishitastigi |
-| `identify.py` | Auðkenning með t1/3, t2/3 aðferð → `data/model.json` + `figures/step1.png` |
-| `runner.py` | Sameiginleg reglunarlykkja, óskgildisferlar, aðlögunartími (settle) og CSV skráning |
-| `run_part1.py`, `run_part2.py`, `run_part3.py` | Keyra lið 1/2/3 með `v1` eða `v2` |
-| `analyze.py` | Mælikvarðar (tafla í Markdown + `data/metrics.csv`) og gröf `figures/partN.png` |
+| `pi kóði/config.py` | Pinnar, PWM tíðni, söfnunartími T = 1 s, öryggismörk (90 °C), möppur. `--sim` í skipanalínu beinir gögnum í `data_sim/` og `figures_sim/` |
+| `pi kóði/hardware.py` | `Hardware` (raunverulegur Pi: GPIO, PWM, segulrofar, DS18B20, Hall-nemi) og `SimHardware` (hermir með sama viðmóti) |
+| `pi kóði/controller.py` | Stakræn PID með anti-windup (back-calculation), síur (`LowPass`, `Notch`), `Controller` sem sameinar síur + feedforward + gain scheduling |
+| `pi kóði/design.py` | FOPDT líkan, SIMC/lambda stilling, kyrrstöðuferill u_ss(T), `PRESETS` með v1/v2 fyrir hvern lið |
+| `pi kóði/step1_equilibrium.py` | Liður 1B: þrep 20 → 50 → 80 % og mæling á jafnvægishitastigi |
+| `pi kóði/identify.py` | Auðkenning með t1/3, t2/3 aðferð → `data/model.json` + `figures/step1.png` |
+| `pi kóði/runner.py` | Sameiginleg reglunarlykkja, óskgildisferlar, aðlögunartími (settle) og CSV skráning |
+| `pi kóði/run_part1.py`, `run_part2.py`, `run_part3.py` | Keyra lið 1/2/3 með `v1` eða `v2` |
+| `pi kóði/analyze.py` | Mælikvarðar (tafla í Markdown + `data/metrics.csv`) og gröf `figures/partN.png` |
 | `requirements.txt` | Python pakkar |
 | `data/` | Mæligögn: `step1_equilibrium.csv`, `model.json`, `partN_vX.csv`, `partN_vX_design.json`, `metrics.csv` |
 | `figures/` | Gröf: `step1.png`, `part1.png`, `part2.png`, `part3.png` |
@@ -125,7 +125,15 @@ pip install -r requirements.txt
 
 ## Keyrsluröð
 
-Allar skipanir eru keyrðar úr rót verkefnisins. Hægt er að stöðva hvenær sem er
+Allar Python skrárnar eru í möppunni `pi kóði/` og skipanirnar hér fyrir neðan
+eru keyrðar þaðan. Gögn og gröf fara samt alltaf í `data/` og `figures/` í rót
+repo-sins. Farið fyrst inn í möppuna (gæsalappirnar þarf vegna bilsins í nafninu):
+
+```bash
+cd "pi kóði"
+```
+
+ Hægt er að stöðva hvenær sem er
 með Ctrl+C; þá er slökkt á hitagjafanum og viftan kælir á 100 % í allt að 60 s
 (eða þar til hiti < 35 °C). Gögn eru skrifuð jafnóðum.
 
@@ -342,7 +350,7 @@ Athugið að í lið 1 hefst keyrslan eftir að aðlögun er lokið, þannig að
 
 Gagnvirk vefsíða sem sýnir óskgildi, hitastig og stýrimerki fyrir v1 og v2 í hverjum lið, ásamt sömu mælikvörðum og `analyze.py`. Ljóst þema er sjálfgefið, með rofa fyrir dökkt.
 
-Byggja mælaborð með ykkar mælingum úr `data/` innbyggðum (býr til `mælaborð/maelabord.html`):
+Byggja mælaborð með ykkar mælingum úr `data/` innbyggðum (býr til `mælaborð/maelabord.html`). Keyrt úr rót repo-sins:
 
 ```bash
 python3 mælaborð/make_dashboard.py

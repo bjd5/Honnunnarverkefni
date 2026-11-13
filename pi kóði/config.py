@@ -30,8 +30,12 @@ COOLDOWN_S = 60.0         # [s] vifta keyrir á 100% í lok keyrslu til að kæl
 # --- Skrár ------------------------------------------------------------------
 # Með --sim fara öll gögn í sér möppur svo hermigögn skrifi aldrei yfir
 # raunverulegar mælingar.
+# Slóðir eru miðaðar við rót repo-sins (möppuna fyrir ofan "pi kóði"), svo
+# það skiptir ekki máli úr hvaða möppu forritin eru keyrð.
+import os as _os
 import sys as _sys
 SIM = "--sim" in _sys.argv
-DATA_DIR = "data_sim" if SIM else "data"
-FIG_DIR = "figures_sim" if SIM else "figures"
-MODEL_FILE = DATA_DIR + "/model.json"
+ROOT_DIR = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+DATA_DIR = _os.path.join(ROOT_DIR, "data_sim" if SIM else "data")
+FIG_DIR = _os.path.join(ROOT_DIR, "figures_sim" if SIM else "figures")
+MODEL_FILE = _os.path.join(DATA_DIR, "model.json")

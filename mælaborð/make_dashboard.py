@@ -18,7 +18,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-sys.path.insert(0, ROOT)
+sys.path.insert(0, os.path.join(ROOT, "pi kóði"))
 import config  # noqa: E402
 
 
@@ -33,14 +33,14 @@ def main():
     files = {}
     patterns = ["step1_equilibrium.csv", "model.json", "part*_v*.csv", "part*_v*_design.json"]
     for pat in patterns:
-        for p in sorted(glob.glob(os.path.join(ROOT, config.DATA_DIR, pat))):
+        for p in sorted(glob.glob(os.path.join(config.DATA_DIR, pat))):
             with open(p, encoding="utf-8") as f:
                 files[os.path.basename(p)] = f.read()
     if not files:
         print("Engin gögn fundust í %s/ - keyrið fyrst mælingarnar." % config.DATA_DIR)
     stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     data = {"files": files, "real": not config.SIM,
-            "label": "%s · %d skrár · %s" % (config.DATA_DIR + "/", len(files), stamp)}
+            "label": "%s · %d skrár · %s" % (os.path.basename(config.DATA_DIR) + "/", len(files), stamp)}
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
 
     with open(os.path.join(HERE, "template.html"), encoding="utf-8") as f:
