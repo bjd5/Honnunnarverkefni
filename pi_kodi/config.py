@@ -8,7 +8,9 @@ Pinnanúmer koma úr sýnidæmum kennara (BCM númerun):
 
 # --- Vélbúnaður -------------------------------------------------------------
 FAN_PWM_PIN = 20          # PWM merki til viftu
-FAN_PWM_FREQ = 25000      # [Hz] 25 kHz eins og Intel 4-pin PWM staðallinn
+FAN_PWM_FREQ = 1000       # [Hz] Mælt með fan_test.py: 25 kHz (sýnidæmi) og 100 Hz gefa
+                          # ólínulega svörun með hugbúnaðar-PWM; 1 kHz gefur nær línulega
+                          # svörun 232 -> 1432 rpm (sjá data/fan_test_*Hz.csv)
 TACH_PIN = 21             # Hall-nemi í viftu (2 púlsar á hring)
 RELAY_FAN_PIN = 26        # Segulrofi fyrir viftu
 RELAY_HEATER_PIN = 16     # Segulrofi fyrir hitaelement

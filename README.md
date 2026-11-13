@@ -66,7 +66,7 @@ PI + feedforward → mettun 0–100 % → stilla viftu → skrá í CSV.
 
 | Merki | GPIO (BCM) | Pinni á haus | Athugasemd |
 |---|---|---|---|
-| PWM til viftu | GPIO20 | 38 | 25 kHz (`FAN_PWM_FREQ`), blár vír á 4-pinna viftu |
+| PWM til viftu | GPIO20 | 38 | 1 kHz (`FAN_PWM_FREQ`, valið út frá `fan_test.py`), blár vír á 4-pinna viftu |
 | Hall-nemi (tach) | GPIO21 | 40 | Innri pull-up virkur, 2 púlsar á hring, grænn/gulur vír |
 | Segulrofi viftu | GPIO26 | 37 | Virkur LOW (`RELAY_ACTIVE_LOW = True`) |
 | Segulrofi hitagjafa | GPIO16 | 36 | Virkur LOW |

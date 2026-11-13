@@ -245,7 +245,12 @@ def _install_signal_handlers():
 
     for name in ("SIGTERM", "SIGHUP"):
         if hasattr(signal, name):
-            signal.signal(getattr(signal, name), handler)
+            sig = getattr(signal, name)
+            # Ef forritið er ræst með nohup er SIGHUP hunsað: þá á keyrslan að
+            # halda áfram þó SSH tengingin slitni, svo við breytum því ekki.
+            if signal.getsignal(sig) == signal.SIG_IGN:
+                continue
+            signal.signal(sig, handler)
 
 
 def make_hardware(sim=False, speed=0.0):
