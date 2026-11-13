@@ -1,128 +1,177 @@
 <title>Hitastýring mælaborð</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: mælitækjaborð - haus með gagnauppsprettu, flipar fyrir hvern lið,
-   lykiltölur efst, svo gröf (hiti yfir stýrimerki) og nákvæm tafla. */
+/* Layout: hljóðlátt Apple-legt mælitæki. Mött stika efst með flipum (segmented
+   control), stór fyrirsögn, lykiltölur sem spjöld, gröf í hvítum flötum með
+   miklu lofti. Ljóst þema sjálfgefið. */
 :root {
-  --bg: #f2f4f6; --surface: #ffffff; --fg: #17212b; --muted: #5a6774; --line: #d8dde3;
-  --v1: #c8424f; --v2: #2a67ad; --sp: #17212b; --meas: #8a96a3;
-  --good: #2c7a50; --good-bg: #e3f2e9; --bad: #b4521d; --bad-bg: #fbeadf;
-  --accent: #0e6f68; --accent-bg: #dff1ef;
-  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-head: "IBM Plex Sans Condensed", "IBM Plex Sans", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --bg: #f5f5f7; --surface: #ffffff; --surface-2: #fbfbfd; --fg: #1d1d1f; --muted: #6e6e73; --faint: #86868b;
+  --line: rgba(0, 0, 0, .08); --grid: rgba(0, 0, 0, .06); --seg: rgba(118, 118, 128, .12); --seg-on: #ffffff;
+  --v1: #ff6a3d; --v2: #0071e3; --sp: #1d1d1f; --accent: #0071e3; --accent-soft: rgba(0, 113, 227, .08);
+  --good: #1a8f3c; --good-bg: rgba(52, 199, 89, .14); --bad: #c4410f; --bad-bg: rgba(255, 106, 61, .14);
+  --band: rgba(0, 113, 227, .045); --glass: rgba(255, 255, 255, .72); --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05);
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0f1419; --surface: #172029; --fg: #e5ebf1; --muted: #93a0ad; --line: #2b3641;
-  --v1: #f27983; --v2: #6db3ff; --sp: #e5ebf1; --meas: #6b7785;
-  --good: #5fd08a; --good-bg: #173326; --bad: #f2a065; --bad-bg: #3a2516;
-  --accent: #39cfc1; --accent-bg: #133533; color-scheme: dark } }
+  --bg: #000000; --surface: #1c1c1e; --surface-2: #161618; --fg: #f5f5f7; --muted: #a1a1a6; --faint: #8e8e93;
+  --line: rgba(255, 255, 255, .1); --grid: rgba(255, 255, 255, .08); --seg: rgba(118, 118, 128, .24); --seg-on: #636366;
+  --v1: #ff8a5c; --v2: #2997ff; --sp: #f5f5f7; --accent: #2997ff; --accent-soft: rgba(41, 151, 255, .14);
+  --good: #30d158; --good-bg: rgba(48, 209, 88, .16); --bad: #ff9f6e; --bad-bg: rgba(255, 138, 92, .16);
+  --band: rgba(41, 151, 255, .07); --glass: rgba(28, 28, 30, .72); --shadow: 0 1px 2px rgba(0,0,0,.4);
+  color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #0f1419; --surface: #172029; --fg: #e5ebf1; --muted: #93a0ad; --line: #2b3641;
-  --v1: #f27983; --v2: #6db3ff; --sp: #e5ebf1; --meas: #6b7785;
-  --good: #5fd08a; --good-bg: #173326; --bad: #f2a065; --bad-bg: #3a2516;
-  --accent: #39cfc1; --accent-bg: #133533; color-scheme: dark }
+  --bg: #000000; --surface: #1c1c1e; --surface-2: #161618; --fg: #f5f5f7; --muted: #a1a1a6; --faint: #8e8e93;
+  --line: rgba(255, 255, 255, .1); --grid: rgba(255, 255, 255, .08); --seg: rgba(118, 118, 128, .24); --seg-on: #636366;
+  --v1: #ff8a5c; --v2: #2997ff; --sp: #f5f5f7; --accent: #2997ff; --accent-soft: rgba(41, 151, 255, .14);
+  --good: #30d158; --good-bg: rgba(48, 209, 88, .16); --bad: #ff9f6e; --bad-bg: rgba(255, 138, 92, .16);
+  --band: rgba(41, 151, 255, .07); --glass: rgba(28, 28, 30, .72); --shadow: 0 1px 2px rgba(0,0,0,.4);
+  color-scheme: dark }
 
 * { box-sizing: border-box }
-body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px }
-.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 20px }
-h1, h2, h3 { font-family: var(--font-head); font-weight: 600; margin: 0; text-wrap: balance; letter-spacing: .01em }
-h1 { font-size: 1.75rem } h2 { font-size: 1.25rem } h3 { font-size: 1rem }
-.mono, td.num, .kpi .val { font-family: var(--font-mono); font-variant-numeric: tabular-nums }
-.muted { color: var(--muted) }
-.label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 500 }
+[hidden] { display: none !important }
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.47; letter-spacing: -.01em; margin: 0 }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--glass) }
+.gutter { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)) }
+.inner { max-width: 1120px; margin: 0 auto }
+h1, h2, h3 { margin: 0; font-family: var(--font-display); text-wrap: balance }
+.num, .mono { font-variant-numeric: tabular-nums }
+.mono { font-family: var(--font-mono); font-size: .9em; letter-spacing: 0 }
 
-header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between }
-header .titles { display: grid; gap: 4px; min-width: 0 }
-.source { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem }
-.pill { display: inline-block; white-space: nowrap; padding: 2px 10px; border-radius: 999px; font-size: .78rem; font-weight: 500 }
-.pill.sim { background: var(--bad-bg); color: var(--bad) }
-.pill.real { background: var(--good-bg); color: var(--good) }
+/* -- stika ---------------------------------------------------------------- */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--glass);
+  -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--line) }
+.bar .inner { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; padding-block: 10px; min-height: 56px }
+.brand { font-weight: 600; font-size: 1.02rem; letter-spacing: -.02em; display: flex; align-items: center; gap: 9px; margin-right: auto }
+.brand svg { width: 22px; height: 22px; flex: none }
+.bar-actions { display: flex; align-items: center; gap: 10px }
+.seg { display: inline-flex; background: var(--seg); border-radius: 9px; padding: 2px; gap: 2px; max-width: 100%; overflow-x: auto; scrollbar-width: none }
+.seg::-webkit-scrollbar { display: none }
+.seg button { font: inherit; font-size: .86rem; font-weight: 500; letter-spacing: -.01em; color: var(--fg); background: transparent; border: 0;
+  border-radius: 7px; padding: 5px 14px; cursor: pointer; white-space: nowrap; transition: background .2s, box-shadow .2s }
+.seg button[aria-selected="true"] { background: var(--seg-on); box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 0 0 .5px rgba(0,0,0,.04) }
+.seg button .na { color: var(--faint) }
+.seg.small button { font-size: .78rem; padding: 4px 10px }
+.tabsrow { order: 3; flex: 1 1 100%; display: flex; justify-content: center }
+@media (min-width: 900px) { .tabsrow { order: 0; flex: 0 1 auto } .brand { margin-right: 0; flex: 1 } .bar-actions { flex: 1; justify-content: flex-end } }
+.btn { font: inherit; font-size: .86rem; font-weight: 500; border: 0; border-radius: 980px; padding: 6px 16px; cursor: pointer; background: var(--accent); color: #fff; white-space: nowrap; transition: filter .2s }
+.btn:hover { filter: brightness(1.08) }
+.link { font: inherit; background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font-size: inherit }
+.link:hover { text-decoration: underline }
+button:focus-visible, input:focus-visible + .switch { outline: 2px solid var(--accent); outline-offset: 2px }
 
-.drop { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; border: 1.5px dashed var(--line); border-radius: 10px; padding: 12px 14px; background: var(--surface) }
-.drop.over { border-color: var(--accent); background: var(--accent-bg) }
-.drop p { margin: 0; flex: 1 1 260px; min-width: 0; font-size: .88rem; color: var(--muted) }
-button, .btn { font: inherit; font-size: .88rem; font-weight: 500; border-radius: 8px; padding: 7px 14px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--surface) }
-button.ghost { background: transparent; color: var(--accent) }
-button:focus-visible, .tab:focus-visible, input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px }
-#loadmsg { font-size: .85rem }
+/* -- haus ----------------------------------------------------------------- */
+main { padding-block: 44px 72px }
+.hero { display: grid; gap: 10px; margin-bottom: 36px }
+.eyebrow { color: var(--accent); font-weight: 600; font-size: .95rem; letter-spacing: -.01em }
+.hero h1 { font-size: clamp(2rem, 4.6vw, 3rem); font-weight: 700; letter-spacing: -.035em; line-height: 1.06 }
+.hero p { margin: 0; font-size: clamp(1.05rem, 1.6vw, 1.25rem); color: var(--muted); max-width: 46em; letter-spacing: -.015em; line-height: 1.4 }
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-size: .85rem; color: var(--muted); margin-top: 6px }
+.badge { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; white-space: nowrap }
+.badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--v1) }
+.badge.real::before { background: var(--good) }
 
-.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto }
-.tab { font: inherit; background: none; border: 0; border-bottom: 2.5px solid transparent; color: var(--muted); padding: 8px 14px; cursor: pointer; font-weight: 500; white-space: nowrap; border-radius: 0 }
-.tab[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent) }
-.tab .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-left: 6px; background: var(--line); vertical-align: middle }
-.tab .dot.on { background: var(--accent) }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-bottom: 18px; font-size: .9rem; color: var(--muted) }
+.toggle { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; user-select: none }
+.toggle input { position: absolute; opacity: 0; pointer-events: none }
+.switch { width: 38px; height: 23px; border-radius: 999px; background: var(--seg); position: relative; transition: background .2s; flex: none }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 19px; height: 19px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.2); transition: transform .2s }
+.toggle input:checked + .switch { background: var(--good) }
+.toggle input:checked + .switch::after { transform: translateX(15px) }
 
-.panel { display: grid; gap: 18px }
-.panel-head { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; justify-content: space-between }
-.panel-head p { margin: 4px 0 0; max-width: 70ch; color: var(--muted); font-size: .9rem }
-.toggles { display: flex; gap: 16px; flex-wrap: wrap; font-size: .88rem }
-.toggles label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer }
-
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px }
-.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; min-width: 0 }
-.kpi .row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px }
-.kpi .val { font-size: 1.05rem }
-.kpi .ver { font-size: .78rem; font-weight: 600 }
-.ver.v1 { color: var(--v1) } .ver.v2 { color: var(--v2) }
-.chg { font-family: var(--font-mono); font-size: .78rem; padding: 1px 8px; border-radius: 999px; justify-self: start }
+/* -- lykiltölur ----------------------------------------------------------- */
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px }
+@media (max-width: 860px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+.kpi { background: var(--surface); border-radius: 18px; padding: 20px 20px 18px; box-shadow: var(--shadow); display: grid; gap: 2px; min-width: 0; align-content: start }
+.kpi .k { font-size: .82rem; color: var(--muted); font-weight: 500 }
+.kpi .big { font-family: var(--font-display); font-size: clamp(1.6rem, 3vw, 2.15rem); font-weight: 600; letter-spacing: -.03em; line-height: 1.15; margin-top: 6px; font-variant-numeric: tabular-nums }
+.kpi .big small { font-size: .5em; font-weight: 500; color: var(--muted); letter-spacing: 0; margin-left: 4px }
+.kpi .sub { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums }
+.kpi .foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; flex-wrap: wrap }
+.chg { display: inline-flex; align-items: center; gap: 3px; font-size: .78rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; font-variant-numeric: tabular-nums; white-space: nowrap }
 .chg.good { background: var(--good-bg); color: var(--good) }
 .chg.bad { background: var(--bad-bg); color: var(--bad) }
-.chg.neutral { background: var(--bg); color: var(--muted) }
+.chg.neutral { background: var(--seg); color: var(--muted) }
+.vdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px }
 
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 14px 8px; min-width: 0 }
-.card h3 { margin-bottom: 6px }
-.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .82rem; color: var(--muted); margin-bottom: 4px }
-.legend span { display: inline-flex; align-items: center; gap: 6px }
-.legend i { display: inline-block; width: 18px; height: 0; border-top: 2.5px solid currentColor }
-.legend i.dash { border-top-style: dashed }
+/* -- gröf ----------------------------------------------------------------- */
+.card { background: var(--surface); border-radius: 18px; box-shadow: var(--shadow); padding: 22px 22px 14px; min-width: 0; margin-bottom: 16px }
+.card-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 20px; margin-bottom: 10px }
+.card h3 { font-size: 1.08rem; font-weight: 600; letter-spacing: -.02em }
+.card .cap { font-size: .82rem; color: var(--muted) }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: .8rem; color: var(--muted) }
+.legend span { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap }
+.legend i { width: 16px; height: 0; border-top: 2.5px solid currentColor; border-radius: 2px }
+.legend i.dash { border-top-style: dashed; border-top-width: 2px }
+.legend i.faint { opacity: .35 }
+.legend em { font-style: normal; color: var(--muted) }
 .chart { position: relative; width: 100% }
-.chart svg { display: block; width: 100%; height: auto; overflow: visible }
-.chart text { fill: var(--muted); font-family: var(--font-mono); font-size: 11px }
-.chart .grid { stroke: var(--line); stroke-width: 1 }
-.chart .axis { stroke: var(--muted); stroke-width: 1 }
-.chart .band { fill: var(--accent-bg); opacity: .55 }
-.chart .cross { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3 }
-.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: .78rem; font-family: var(--font-mono); box-shadow: 0 4px 14px rgb(0 0 0 / .12); white-space: nowrap; z-index: 2 }
-.tip b { font-family: var(--font-body); font-weight: 600 }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y }
+.chart text { fill: var(--faint); font-family: var(--font); font-size: 11px; font-variant-numeric: tabular-nums; letter-spacing: 0 }
+.chart .grid { stroke: var(--grid); stroke-width: 1 }
+.chart .band { fill: var(--band) }
+.chart .bandlbl { fill: var(--accent); font-size: 10.5px; font-weight: 500; opacity: .8 }
+.chart .cross { stroke: var(--faint); stroke-width: 1 }
+.tip { position: absolute; top: 0; pointer-events: none; background: var(--glass); -webkit-backdrop-filter: blur(16px) saturate(180%); backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; font-size: .8rem; box-shadow: 0 8px 28px rgba(0,0,0,.14); white-space: nowrap; z-index: 2; font-variant-numeric: tabular-nums; line-height: 1.6 }
+.tip b { font-weight: 600 }
+.tip .r { display: flex; justify-content: space-between; gap: 18px }
+.tip .r span:last-child { font-weight: 500 }
 
-.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px }
-table { border-collapse: collapse; width: 100%; font-size: .87rem }
-th, td { padding: 7px 12px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap }
-th { font-weight: 600; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted) }
-td.num, th.num { text-align: right }
+/* -- töflur --------------------------------------------------------------- */
+.section-title { font-size: 1.35rem; font-weight: 600; letter-spacing: -.025em; margin: 36px 0 14px }
+.tablecard { background: var(--surface); border-radius: 18px; box-shadow: var(--shadow); overflow-x: auto; margin-bottom: 16px }
+table { border-collapse: collapse; width: 100%; font-size: .88rem }
+th, td { padding: 11px 18px; text-align: left; white-space: nowrap }
+th { font-weight: 500; font-size: .78rem; color: var(--muted); border-bottom: 1px solid var(--line) }
+td { border-bottom: 1px solid var(--line) }
 tr:last-child td { border-bottom: 0 }
-td .hint { color: var(--muted); font-size: .8rem; margin-left: 6px }
-.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px }
-.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 10px; padding: 28px; text-align: center; color: var(--muted) }
-.note { font-size: .85rem; color: var(--muted); max-width: 80ch }
-@media (max-width: 480px) { h1 { font-size: 1.4rem } .kpis { grid-template-columns: 1fr 1fr } }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums }
+td.name { font-weight: 500 }
+td .hint { display: block; color: var(--muted); font-size: .78rem; font-weight: 400; white-space: normal; min-width: 14em }
+tr.grp td { background: var(--surface-2); font-size: .74rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; padding-block: 8px }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 16px }
+.note { font-size: .82rem; color: var(--muted); max-width: 52em; line-height: 1.55 }
+.empty { background: var(--surface); border-radius: 18px; box-shadow: var(--shadow); padding: 56px 24px; text-align: center; color: var(--muted); display: grid; gap: 14px; justify-items: center }
+.empty h3 { color: var(--fg); font-size: 1.2rem; font-weight: 600 }
+
+/* -- draga inn ------------------------------------------------------------ */
+.dropzone { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; background: var(--glass);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); padding: 24px }
+.dropzone div { border: 2px dashed var(--accent); border-radius: 24px; padding: 48px 40px; text-align: center; background: var(--surface); max-width: 420px; display: grid; gap: 8px }
+.dropzone h3 { font-size: 1.3rem }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 30; background: var(--fg); color: var(--bg);
+  border-radius: 999px; padding: 10px 18px; font-size: .86rem; box-shadow: 0 10px 30px rgba(0,0,0,.2); max-width: calc(100% - 40px); text-align: center }
+footer { color: var(--faint); font-size: .78rem; padding-block: 0 40px }
+@media (max-width: 520px) { .card, .kpi { border-radius: 16px; padding-left: 16px; padding-right: 16px } main { padding-top: 28px } th, td { padding-inline: 14px } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important } }
 </style>
 
-<div class="wrap">
-  <header>
-    <div class="titles">
-      <span class="label">IÐN303G · hönnunarverkefni</span>
-      <h1>Hitastýring: mælaborð</h1>
-      <div class="source"><span class="muted">Gögn:</span> <span id="srcpill" class="pill sim">Sýnigögn úr hermi</span> <span id="srcinfo" class="muted mono"></span></div>
+<header class="bar gutter">
+  <div class="inner">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="var(--accent)"/><path d="M12 5.5a2 2 0 0 0-2 2v6.3a3.4 3.4 0 1 0 4 0V7.5a2 2 0 0 0-2-2Z" fill="none" stroke="#fff" stroke-width="1.6"/><circle cx="12" cy="16.5" r="1.6" fill="#fff"/></svg>
+      Hitastýring
     </div>
-  </header>
-
-  <div class="drop" id="drop">
-    <p>Dragðu CSV/JSON skrárnar úr <span class="mono">data/</span> möppunni hingað (t.d. <span class="mono">part2_v1.csv</span>, <span class="mono">step1_equilibrium.csv</span>, <span class="mono">model.json</span>). Skráarnöfnin segja til um hvaða lið gögnin tilheyra.</p>
-    <input type="file" id="file" multiple accept=".csv,.json" hidden>
-    <button id="pick">Velja skrár</button>
-    <button id="reset" class="ghost">Sýnigögn</button>
-    <span id="loadmsg" class="muted"></span>
+    <div class="tabsrow"><nav class="seg" role="tablist" id="tabs" aria-label="Liðir"></nav></div>
+    <div class="bar-actions">
+      <div class="seg small" id="theme" role="radiogroup" aria-label="Þema"></div>
+      <button class="btn" id="pick">Hlaða inn gögnum</button>
+      <input type="file" id="file" multiple accept=".csv,.json" hidden>
+    </div>
   </div>
+</header>
 
-  <nav class="tabs" role="tablist" id="tabs"></nav>
-  <main id="panel" class="panel"></main>
-</div>
+<main class="gutter"><div class="inner" id="panel"></div></main>
+<footer class="gutter"><div class="inner">IÐN303G · Hönnunarverkefni í tæknilegum kerfum · Raspberry Pi, DS18B20, Arctic F12 PWM</div></footer>
+
+<div class="dropzone" id="dropzone" hidden><div><h3>Slepptu skránum</h3><span class="note">CSV og JSON skrár úr <span class="mono">data/</span> möppunni</span></div></div>
+<div class="toast" id="toast" hidden></div>
 
 <script id="embedded-data" type="application/json">__DATA__</script>
 <script>
@@ -227,241 +276,271 @@ const fmt = (x, d = 2) => (x === null || x === undefined || !isFinite(x)) ? "–
 
 // ---------------------------------------------------------------- graf (SVG)
 function niceTicks(lo, hi, n = 5) {
-  if (!(hi > lo)) { hi = lo + 1; }
+  if (!(hi > lo)) hi = lo + 1;
   const raw = (hi - lo) / n, p = Math.pow(10, Math.floor(Math.log10(raw)));
   const step = [1, 2, 2.5, 5, 10].map(k => k * p).find(s => s >= raw);
-  const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(10));
+  const out = []; for (let v = Math.ceil(lo / step - 1e-9) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(10));
   return out;
-}
-function lineChart(el, cfg) {
-  el.innerHTML = "";
-  const W = Math.max(300, el.clientWidth || 800), H = cfg.height || 300;
-  const m = { l: 48, r: 12, t: 10, b: 30 };
-  let xs = [], ys = [];
-  cfg.series.forEach(s => s.pts.forEach(([x, y]) => { if (isFinite(x) && isFinite(y)) { xs.push(x); ys.push(y); } }));
-  if (!xs.length) { el.innerHTML = '<div class="empty">Engin gögn</div>'; return; }
-  let x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = cfg.yMin ?? Math.min(...ys), y1 = cfg.yMax ?? Math.max(...ys);
-  const pad = (y1 - y0) * .06 || .5; if (cfg.yMin === undefined) y0 -= pad; if (cfg.yMax === undefined) y1 += pad;
-  const yt = niceTicks(y0, y1, cfg.yTicks || 5), xt = niceTicks(x0, x1, W < 500 ? 4 : 8);
-  y0 = Math.min(y0, yt[0]); y1 = Math.max(y1, yt[yt.length - 1]);
-  const sx = x => m.l + (x - x0) / (x1 - x0 || 1) * (W - m.l - m.r);
-  const sy = y => H - m.b - (y - y0) / (y1 - y0 || 1) * (H - m.t - m.b);
-  const NS = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(NS, "svg");
-  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  let s = "";
-  (cfg.bands || []).forEach(([a, b]) => { s += `<rect class="band" x="${sx(Math.max(a, x0))}" y="${m.t}" width="${Math.max(0, sx(Math.min(b, x1)) - sx(Math.max(a, x0)))}" height="${H - m.t - m.b}" fill="currentColor"/>`; });
-  yt.forEach(v => { s += `<line class="grid" x1="${m.l}" x2="${W - m.r}" y1="${sy(v)}" y2="${sy(v)}"/><text x="${m.l - 6}" y="${sy(v) + 4}" text-anchor="end">${+v.toFixed(2)}</text>`; });
-  xt.forEach(v => { s += `<line class="grid" x1="${sx(v)}" x2="${sx(v)}" y1="${m.t}" y2="${H - m.b}"/><text x="${sx(v)}" y="${H - m.b + 16}" text-anchor="middle">${+v.toFixed(1)}</text>`; });
-  s += `<line class="axis" x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}"/>`;
-  if (cfg.yLabel) s += `<text x="4" y="${m.t + 2}" dominant-baseline="hanging">${cfg.yLabel}</text>`;
-  if (cfg.xLabel) s += `<text x="${W - m.r}" y="${H - 2}" text-anchor="end">${cfg.xLabel}</text>`;
-  cfg.series.forEach(se => {
-    const pts = se.pts.filter(([x, y]) => isFinite(x) && isFinite(y));
-    if (!pts.length) return;
-    let d = "";
-    if (se.step) pts.forEach(([x, y], i) => { d += i ? `H${sx(x).toFixed(1)}V${sy(y).toFixed(1)}` : `M${sx(x).toFixed(1)},${sy(y).toFixed(1)}`; });
-    else d = "M" + pts.map(([x, y]) => `${sx(x).toFixed(1)},${sy(y).toFixed(1)}`).join("L");
-    s += `<path d="${d}" fill="none" stroke="${se.color}" stroke-width="${se.width || 1.8}" ${se.dash ? `stroke-dasharray="${se.dash}"` : ""} opacity="${se.opacity ?? 1}" stroke-linejoin="round"/>`;
-  });
-  s += `<line class="cross" id="cross" x1="0" x2="0" y1="${m.t}" y2="${H - m.b}" visibility="hidden"/>`;
-  svg.innerHTML = s;
-  el.appendChild(svg);
-  const tip = document.createElement("div"); tip.className = "tip"; tip.hidden = true; el.appendChild(tip);
-  const cross = svg.querySelector("#cross");
-  const nearest = (pts, x) => { let lo = 0, hi = pts.length - 1; while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (pts[mid][0] < x) lo = mid; else hi = mid; } return Math.abs(pts[lo][0] - x) < Math.abs(pts[hi][0] - x) ? pts[lo] : pts[hi]; };
-  function move(ev) {
-    const rect = svg.getBoundingClientRect();
-    const px = (ev.clientX - rect.left) / rect.width * W;
-    if (px < m.l || px > W - m.r) { leave(); return; }
-    const x = x0 + (px - m.l) / (W - m.l - m.r) * (x1 - x0);
-    cross.setAttribute("x1", px); cross.setAttribute("x2", px); cross.setAttribute("visibility", "visible");
-    let h = `<b>t = ${x.toFixed(1)} s</b>`;
-    cfg.series.filter(se => se.tip !== false && se.pts.length).forEach(se => {
-      const p = nearest(se.pts, x);
-      h += `<br><span style="color:${se.color}">■</span> ${se.name}: ${fmt(p[1], cfg.tipDigits ?? 2)}${cfg.unit || ""}`;
-    });
-    tip.innerHTML = h; tip.hidden = false;
-    const left = (px / W) * rect.width;
-    tip.style.top = "8px";
-    tip.style.left = (left > rect.width / 2 ? left - tip.offsetWidth - 12 : left + 12) + "px";
-  }
-  function leave() { tip.hidden = true; cross.setAttribute("visibility", "hidden"); }
-  svg.addEventListener("pointermove", move); svg.addEventListener("pointerleave", leave);
 }
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
-// ---------------------------------------------------------------- flipar
+function lineChart(el, cfg) {
+  el.innerHTML = "";
+  const W = Math.max(300, el.clientWidth || 800), H = cfg.height || 300;
+  const m = { l: 40, r: 8, t: cfg.bandLabels ? 22 : 10, b: 26 };
+  const xs = [], ys = [];
+  cfg.series.forEach(s => s.pts.forEach(([x, y]) => { if (isFinite(x) && isFinite(y)) { xs.push(x); ys.push(y); } }));
+  if (!xs.length) { el.innerHTML = '<p class="note">Engin gögn</p>'; return; }
+  let x0 = Math.min(...xs), x1 = Math.max(...xs);
+  let y0 = cfg.yMin ?? Math.min(...ys), y1 = cfg.yMax ?? Math.max(...ys);
+  const pad = (y1 - y0) * .08 || .5; if (cfg.yMin === undefined) y0 -= pad; if (cfg.yMax === undefined) y1 += pad;
+  const yt = niceTicks(y0, y1, cfg.yTicks || 5).filter(v => v >= y0 - 1e-9 && v <= y1 + 1e-9);
+  const xt = niceTicks(x0, x1, W < 560 ? 4 : 8).filter(v => v >= x0 && v <= x1);
+  const sx = x => m.l + (x - x0) / (x1 - x0 || 1) * (W - m.l - m.r);
+  const sy = y => H - m.b - (y - y0) / (y1 - y0 || 1) * (H - m.t - m.b);
+  let s = "";
+  (cfg.bands || []).forEach(b => {
+    const a = Math.max(b[0], x0), c = Math.min(b[1], x1); if (c <= a) return;
+    s += `<rect class="band" x="${sx(a)}" y="${m.t}" width="${sx(c) - sx(a)}" height="${H - m.t - m.b}"/>`;
+    if (cfg.bandLabels && b[2]) s += `<text class="bandlbl" x="${(sx(a) + sx(c)) / 2}" y="${m.t - 7}" text-anchor="middle">${b[2]}</text>`;
+  });
+  yt.forEach(v => { s += `<line class="grid" x1="${m.l}" x2="${W - m.r}" y1="${sy(v)}" y2="${sy(v)}"/><text x="${m.l - 8}" y="${sy(v) + 4}" text-anchor="end">${+v.toFixed(2)}</text>`; });
+  xt.forEach(v => { s += `<text x="${sx(v)}" y="${H - 6}" text-anchor="middle">${+v.toFixed(1)}${v === xt[xt.length - 1] && cfg.xUnit ? " " + cfg.xUnit : ""}</text>`; });
+  cfg.series.forEach(se => {
+    const pts = se.pts.filter(([x, y]) => isFinite(x) && isFinite(y)); if (!pts.length) return;
+    let d = "";
+    if (se.step) pts.forEach(([x, y], i) => { d += i ? `H${sx(x).toFixed(1)}V${sy(y).toFixed(1)}` : `M${sx(x).toFixed(1)},${sy(y).toFixed(1)}`; });
+    else d = "M" + pts.map(([x, y]) => `${sx(x).toFixed(1)},${sy(y).toFixed(1)}`).join("L");
+    s += `<path d="${d}" fill="none" stroke="${se.color}" stroke-width="${se.width || 2}" ${se.dash ? `stroke-dasharray="${se.dash}"` : ""} opacity="${se.opacity ?? 1}" stroke-linejoin="round" stroke-linecap="round"/>`;
+    if (se.endDot) { const [ex, ey] = pts[pts.length - 1]; s += `<circle cx="${sx(ex)}" cy="${sy(ey)}" r="3.5" fill="${se.color}" stroke="var(--surface)" stroke-width="2"/>`; }
+  });
+  s += `<g id="hov" visibility="hidden"><line class="cross" id="cross" x1="0" x2="0" y1="${m.t}" y2="${H - m.b}"/>`;
+  cfg.series.forEach((se, i) => { if (se.tip !== false) s += `<circle id="hd${i}" r="4" fill="${se.color}" stroke="var(--surface)" stroke-width="2"/>`; });
+  s += `</g>`;
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("role", "img"); svg.setAttribute("aria-label", cfg.aria || "Graf");
+  svg.innerHTML = s; el.appendChild(svg);
+  const tip = document.createElement("div"); tip.className = "tip"; tip.hidden = true; el.appendChild(tip);
+  const hov = svg.querySelector("#hov"), cross = svg.querySelector("#cross");
+  const nearest = (pts, x) => { let lo = 0, hi = pts.length - 1; while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (pts[mid][0] < x) lo = mid; else hi = mid; } return Math.abs(pts[lo][0] - x) < Math.abs(pts[hi][0] - x) ? pts[lo] : pts[hi]; };
+  function move(ev) {
+    const rect = svg.getBoundingClientRect(), px = (ev.clientX - rect.left) / rect.width * W;
+    if (px < m.l || px > W - m.r) return leave();
+    const x = x0 + (px - m.l) / (W - m.l - m.r) * (x1 - x0);
+    cross.setAttribute("x1", px); cross.setAttribute("x2", px); hov.setAttribute("visibility", "visible");
+    let h = `<b>t = ${x.toFixed(0)} s</b>`;
+    cfg.series.forEach((se, i) => {
+      if (se.tip === false || !se.pts.length) return;
+      const p = nearest(se.pts, x), dot = svg.querySelector("#hd" + i);
+      dot.setAttribute("cx", sx(p[0])); dot.setAttribute("cy", sy(p[1]));
+      h += `<div class="r"><span><span class="vdot" style="background:${se.color}"></span>${se.name}</span><span>${fmt(p[1], cfg.tipDigits ?? 2)}${cfg.unit || ""}</span></div>`;
+    });
+    tip.innerHTML = h; tip.hidden = false;
+    const left = (px / W) * rect.width;
+    tip.style.left = (left > rect.width / 2 ? left - tip.offsetWidth - 14 : left + 14) + "px";
+    tip.style.top = "6px";
+  }
+  function leave() { tip.hidden = true; hov.setAttribute("visibility", "hidden"); }
+  svg.addEventListener("pointermove", move); svg.addEventListener("pointerdown", move); svg.addEventListener("pointerleave", leave);
+}
+
+// ---------------------------------------------------------------- uppsetning
 const TABS = [
-  ["eq", "1B Jafnvægi", () => !!state.files["step1_equilibrium.csv"]],
+  ["eq", "Jafnvægi", () => !!state.files["step1_equilibrium.csv"]],
   ["p1", "Liður 1", () => runData(1, "v1") || runData(1, "v2")],
   ["p2", "Liður 2", () => runData(2, "v1") || runData(2, "v2")],
   ["p3", "Liður 3", () => runData(3, "v1") || runData(3, "v2")],
 ];
 const DESC = {
-  1: ["Halda föstu óskgildi", "Óskgildið er jafnvægishitastigið við 50% duty cycle, haldið í 240 s."],
-  2: ["Fylgja breytingum í óskgildi", "T50 í 180 s, rampur upp í T20 á 120 s, T20 í 180 s, rampur niður í T80 á 120 s, T80 í 180 s."],
-  3: ["Breytingar í óskgildi með truflun á mælingu", "Sami ferill og í lið 2. Sínustruflun með útslag 3% af |T20 − T80| og sveiflutíma 8 s er bætt við mælinguna áður en stýrimerkið er reiknað."],
+  1: ["Halda föstu óskgildi", "Óskgildið er jafnvægishitastigið við 50% duty cycle. Því er haldið óbreyttu í 240 sekúndur."],
+  2: ["Fylgja breytingum í óskgildi", "Hitinn fylgir óskgildi sem hækkar línulega úr T50 í T20 og lækkar svo í T80, með 180 sekúndna kyrrstöðu á milli."],
+  3: ["Fylgja óskgildi þrátt fyrir truflun", "Sami ferill og í lið 2, en sínustruflun með útslag 3% af |T20 − T80| og 8 sekúndna sveiflutíma er bætt við mælinguna."],
 };
+const VN = { v1: "Upprunaleg", v2: "Endurbætt" };
+const KPI = [["IAE", "Heildarskekkja", 1], ["RMS e", "RMS skekkja", 3], ["max |e|", "Mesta frávik", 2], ["TV(u)", "Breytileiki stýrimerkis", 0]];
 
+const THEMES = [["light", "Ljóst"], ["dark", "Dökkt"], ["auto", "Kerfi"]];
+function applyTheme(t) {
+  const r = document.documentElement;
+  if (t === "auto") r.removeAttribute("data-theme"); else r.setAttribute("data-theme", t);
+  state.theme = t;
+  try { localStorage.setItem("theme", t); } catch {}
+}
+function renderTheme() {
+  const g = document.getElementById("theme"); g.innerHTML = "";
+  THEMES.forEach(([id, name]) => {
+    const b = document.createElement("button"); b.textContent = name; b.setAttribute("role", "radio");
+    b.setAttribute("aria-selected", state.theme === id); b.setAttribute("aria-checked", state.theme === id);
+    b.onclick = () => { applyTheme(id); renderTheme(); render(); };
+    g.appendChild(b);
+  });
+}
 function renderTabs() {
-  const nav = document.getElementById("tabs");
-  nav.innerHTML = "";
+  const nav = document.getElementById("tabs"); nav.innerHTML = "";
   TABS.forEach(([id, name, has]) => {
-    const b = document.createElement("button");
-    b.className = "tab"; b.setAttribute("role", "tab"); b.id = "tab-" + id;
+    const b = document.createElement("button"); b.setAttribute("role", "tab"); b.id = "tab-" + id;
     b.setAttribute("aria-selected", state.tab === id);
-    b.innerHTML = `${name}<span class="dot ${has() ? "on" : ""}" title="${has() ? "Gögn til" : "Engin gögn"}"></span>`;
-    b.onclick = () => { state.tab = id; try { localStorage.setItem("tab", id); } catch {} render(); };
+    b.innerHTML = has() ? name : `<span class="na">${name}</span>`;
+    b.onclick = () => { state.tab = id; try { localStorage.setItem("tab", id); } catch {} render(); window.scrollTo({ top: 0 }); };
     nav.appendChild(b);
   });
 }
+function sourceLine() {
+  const kind = state.dropped ? "Innlesnar skrár" : state.real ? "Mælingar af búnaði" : "Sýnigögn úr hermi";
+  return `<div class="meta"><span class="badge ${state.real ? "real" : ""}">${kind}</span><span class="mono">${state.label}</span>${state.dropped || state.real ? "" : '<span>Hlaðið inn ykkar eigin gögnum til að skoða raunmælingar.</span>'}${state.dropped ? '<button class="link" id="back">Aftur í innbyggð gögn</button>' : ""}</div>`;
+}
+function chip(c) {
+  if (c === null) return "";
+  const cls = c < -1 ? "good" : c > 1 ? "bad" : "neutral";
+  const arrow = c < -1 ? "↓" : c > 1 ? "↑" : "";
+  return `<span class="chg ${cls}">${arrow} ${Math.abs(c).toFixed(0)}%</span>`;
+}
 
 function render() {
-  document.getElementById("srcpill").className = "pill " + (state.real ? "real" : "sim");
-  document.getElementById("srcpill").textContent = state.dropped ? "Innlesnar skrár" : state.real ? "Ykkar mælingar" : "Sýnigögn úr hermi";
-  document.getElementById("srcinfo").textContent = state.label;
   renderTabs();
   const p = document.getElementById("panel");
   if (state.tab === "eq") renderEq(p); else renderPart(p, +state.tab.slice(1));
+  const back = document.getElementById("back");
+  if (back) back.onclick = () => { loadEmbedded(); render(); };
+  p.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => document.getElementById("file").click());
+}
+
+function emptyState(title, text) {
+  return `<div class="empty"><h3>${title}</h3><p class="note" style="margin:0">${text}</p><button class="btn" data-pick>Hlaða inn gögnum</button></div>`;
 }
 
 function renderPart(p, part) {
   const runs = { v1: runData(part, "v1"), v2: runData(part, "v2") };
   const [title, desc] = DESC[part];
+  const hero = `<section class="hero"><span class="eyebrow">Liður ${part}</span><h1>${title}</h1><p>${desc}</p>${sourceLine()}</section>`;
   if (!runs.v1 && !runs.v2) {
-    p.innerHTML = `<div class="panel-head"><div><h2>Liður ${part}: ${title}</h2><p>${desc}</p></div></div>
-      <div class="empty">Engin gögn fyrir lið ${part}. Dragðu inn <span class="mono">part${part}_v1.csv</span> og <span class="mono">part${part}_v2.csv</span>.</div>`;
+    p.innerHTML = hero + emptyState(`Engin gögn fyrir lið ${part}`, `Hlaðið inn <span class="mono">part${part}_v1.csv</span> og <span class="mono">part${part}_v2.csv</span> úr <span class="mono">data/</span> möppunni.`);
     return;
   }
-  const vers = ["v1", "v2"].filter(v => runs[v]);
+  const vers = ["v1", "v2"].filter(v => runs[v]), both = vers.length === 2;
   const ms = {}; vers.forEach(v => ms[v] = metrics(part, runs[v].run));
-  const both = vers.length === 2;
-  const kpiKeys = ["IAE", "RMS e", "max |e|", "TV(u)"];
-  const kpis = kpiKeys.map(k => {
-    const row = v => ms[v].find(x => x[0] === k);
-    const r0 = row(vers[0]);
-    const vals = vers.map(v => `<div class="row"><span class="ver ${v}">${v === "v1" ? "Upprunaleg" : "Endurbætt"}</span><span class="val">${fmt(row(v)[2], k === "TV(u)" ? 0 : 2)}</span></div>`).join("");
-    let chip = "";
-    if (both) {
-      const c = change(row("v1")[2], row("v2")[2]);
-      chip = c === null ? "" : `<span class="chg ${c < -1 ? "good" : c > 1 ? "bad" : "neutral"}">${c > 0 ? "+" : ""}${c.toFixed(0)}% með v2</span>`;
-    }
-    return `<div class="kpi"><span class="label">${k} [${r0[1]}]</span>${vals}${chip}</div>`;
-  }).join("");
-
-  const rows = ms[vers[0]].map((x, i) => {
-    const vals = vers.map(v => `<td class="num">${fmt(ms[v][i][2], x[1] === "s" || x[0] === "TV(u)" ? 1 : 3)}</td>`).join("");
-    let c = "";
-    if (both) {
-      const ch = x[4] === "neutral" ? null : change(ms.v1[i][2], ms.v2[i][2], x[1]);
-      c = `<td class="num">${ch === null ? "–" : `<span class="chg ${ch < -1 ? "good" : ch > 1 ? "bad" : "neutral"}">${ch > 0 ? "+" : ""}${ch.toFixed(0)}%</span>`}</td>`;
-    }
-    return `<tr><td>${x[0]} <span class="hint">${x[3]}</span></td><td class="muted">${x[1]}</td>${vals}${c}</tr>`;
-  }).join("");
-
-  const dz = vers.map(v => { const d = design(part, v); return d ? `<tr><td class="ver ${v}">${v}</td><td>${d.description || ""}</td><td class="num">${fmt(d.kc, 2)}</td><td class="num">${fmt(d.ti, 1)}</td><td class="num">${fmt(d.tc, 1)}</td><td class="num">${fmt(d.theta_eff, 1)}</td><td class="num">${fmt(d.preview, 1)}</td></tr>` : ""; }).join("");
-
-  p.innerHTML = `
-    <div class="panel-head">
-      <div><h2>Liður ${part}: ${title}</h2><p>${desc}</p></div>
-      <div class="toggles">
-        <label><input type="checkbox" id="cb-settle" ${state.showSettle ? "checked" : ""}> Sýna aðlögun (t &lt; 0)</label>
-        ${part === 3 ? `<label><input type="checkbox" id="cb-meas" ${state.showMeas ? "checked" : ""}> Sýna mælingu með truflun</label>` : ""}
-      </div>
-    </div>
-    <div class="kpis">${kpis}</div>
-    <div class="card"><h3>Hitastig</h3><div class="legend" id="lg-T"></div><div class="chart" id="ch-T"></div></div>
-    <div class="card"><h3>Stýrimerki: duty cycle viftu</h3><div class="legend" id="lg-u"></div><div class="chart" id="ch-u"></div></div>
-    <div class="tablewrap"><table>
-      <thead><tr><th>Mælikvarði</th><th>Eining</th>${vers.map(v => `<th class="num ver ${v}">${v}</th>`).join("")}${both ? '<th class="num">Breyting</th>' : ""}</tr></thead>
-      <tbody>${rows}</tbody></table></div>
-    <p class="note">Skekkja e = r − y er reiknuð með raunverulegu mældu hitastigi, án viðbættrar truflunar. Breyting er reiknuð á tölugildum: neikvæð tala þýðir að v2 sé betri. Engin prósenta er sýnd þegar báðar skekkjur eru undir 0,05 °C (minna en upplausn nemans). H = fastur bútur, R = rampur.</p>
-    ${dz ? `<div class="tablewrap"><table><thead><tr><th>Útgáfa</th><th>Stýring</th><th class="num">Kc [%/°C]</th><th class="num">Ti [s]</th><th class="num">tc [s]</th><th class="num">θ virkt [s]</th><th class="num">Forsýn [s]</th></tr></thead><tbody>${dz}</tbody></table></div>` : ""}`;
-
-  const cb = document.getElementById("cb-settle");
-  cb.onchange = () => { state.showSettle = cb.checked; render(); };
-  const cm = document.getElementById("cb-meas");
-  if (cm) cm.onchange = () => { state.showMeas = cm.checked; render(); };
-
+  const get = (v, k) => ms[v].find(x => x[0] === k);
   const C = { v1: css("--v1"), v2: css("--v2"), sp: css("--sp") };
+
+  const kpis = KPI.map(([k, name, dig]) => {
+    const main = vers[vers.length - 1], other = both ? "v1" : null, row = get(main, k);
+    const c = both ? change(get("v1", k)[2], get("v2", k)[2], row[1]) : null;
+    return `<div class="kpi"><span class="k">${name}</span>
+      <span class="big">${fmt(row[2], dig)}<small>${row[1]}</small></span>
+      <span class="sub"><span class="vdot" style="background:${C[main]}"></span>${VN[main]}${other ? ` · upprunaleg ${fmt(get(other, k)[2], dig)}` : ""}</span>
+      <div class="foot"><span class="sub">${k}</span>${chip(c)}</div></div>`;
+  }).join("");
+
+  let rows = "", lastGrp = "";
+  ms[vers[0]].forEach((x, i) => {
+    const grp = /^(IAE|RMS|max|TV|std|meðal u)/.test(x[0]) ? "Heildin" : "Eftir bútum";
+    if (grp !== lastGrp) { rows += `<tr class="grp"><td colspan="${3 + vers.length}">${grp}</td></tr>`; lastGrp = grp; }
+    const vals = vers.map(v => `<td class="num">${fmt(ms[v][i][2], x[1] === "s" || x[0] === "TV(u)" ? 1 : 3)}</td>`).join("");
+    const ch = both && x[4] !== "neutral" ? change(ms.v1[i][2], ms.v2[i][2], x[1]) : null;
+    rows += `<tr><td class="name">${x[0]}<span class="hint">${x[3]}</span></td><td class="num" style="color:var(--muted)">${x[1]}</td>${vals}${both ? `<td class="num">${ch === null ? '<span style="color:var(--faint)">–</span>' : chip(ch)}</td>` : ""}</tr>`;
+  });
+
+  const dz = vers.map(v => { const d = design(part, v); return d ? `<tr><td class="name"><span class="vdot" style="background:${C[v]}"></span>${VN[v]}<span class="hint">${d.description || ""}</span></td><td class="num">${fmt(d.kc, 2)}</td><td class="num">${fmt(d.ti, 1)}</td><td class="num">${fmt(d.tc, 1)}</td><td class="num">${fmt(d.theta_eff, 1)}</td><td class="num">${fmt(d.preview, 1)}</td></tr>` : ""; }).join("");
+
+  p.innerHTML = hero + `
+    <div class="kpis">${kpis}</div>
+    <div class="controls">
+      <label class="toggle"><input type="checkbox" id="cb-settle" ${state.showSettle ? "checked" : ""}><span class="switch"></span>Sýna aðlögun fyrir t = 0</label>
+      ${part === 3 ? `<label class="toggle"><input type="checkbox" id="cb-meas" ${state.showMeas ? "checked" : ""}><span class="switch"></span>Sýna mælingu með truflun</label>` : ""}
+    </div>
+    <div class="card"><div class="card-head"><h3>Hitastig</h3><div class="legend" id="lg-T"></div></div><div class="chart" id="ch-T"></div></div>
+    <div class="card"><div class="card-head"><h3>Stýrimerki</h3><span class="cap">Duty cycle viftu, 0–100%</span></div><div class="chart" id="ch-u"></div></div>
+    <h2 class="section-title">Mælikvarðar</h2>
+    <div class="tablecard"><table>
+      <thead><tr><th>Mælikvarði</th><th class="num">Eining</th>${vers.map(v => `<th class="num"><span class="vdot" style="background:${C[v]}"></span>${VN[v]}</th>`).join("")}${both ? '<th class="num">Breyting</th>' : ""}</tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    <p class="note">Skekkjan e = r − y er reiknuð með raunverulegu mældu hitastigi, án viðbættrar truflunar. Breytingin er reiknuð á tölugildum: græn ör niður þýðir að endurbætta stýringin er betri. Engin prósenta er sýnd þegar báðar skekkjur eru undir 0,05 °C, sem er minna en upplausn nemans. H er fastur bútur og R er rampur.</p>
+    ${dz ? `<h2 class="section-title">Stýringar</h2><div class="tablecard"><table><thead><tr><th>Útgáfa</th><th class="num">Kc [%/°C]</th><th class="num">Ti [s]</th><th class="num">tc [s]</th><th class="num">θ virkt [s]</th><th class="num">Forsýn [s]</th></tr></thead><tbody>${dz}</tbody></table></div>` : ""}`;
+
+  document.getElementById("cb-settle").onchange = e => { state.showSettle = e.target.checked; render(); };
+  const cm = document.getElementById("cb-meas"); if (cm) cm.onchange = e => { state.showMeas = e.target.checked; render(); };
+
   const src = v => state.showSettle ? runs[v].all : runs[v].run.map(r => ({ ...r, tt: r.t }));
   const ref = src(vers[0]);
-  const sT = [{ name: "Óskgildi r", color: C.sp, dash: "6 4", width: 1.6, pts: ref.map(r => [r.tt, r.r]) }];
-  const sU = [];
-  const lgT = [`<span style="color:${C.sp}"><i class="dash"></i>Óskgildi</span>`], lgU = [];
+  const sT = [{ name: "Óskgildi", color: C.sp, dash: "5 5", width: 1.5, pts: ref.map(r => [r.tt, r.r]) }], sU = [];
+  const lg = [`<span style="color:${C.sp}"><i class="dash"></i><em>Óskgildi</em></span>`];
   vers.forEach(v => {
-    const d = src(v), nm = v === "v1" ? "Upprunaleg (v1)" : "Endurbætt (v2)";
-    if (part === 3 && state.showMeas) sT.push({ name: `${v} mæling+truflun`, color: C[v], width: 1, opacity: .28, tip: false, pts: d.map(r => [r.tt, r.y_meas]) });
-    sT.push({ name: nm, color: C[v], pts: d.map(r => [r.tt, r.y]) });
-    sU.push({ name: nm, color: C[v], width: 1.3, pts: d.map(r => [r.tt, r.u]) });
-    lgT.push(`<span style="color:${C[v]}"><i></i>${nm}</span>`); lgU.push(`<span style="color:${C[v]}"><i></i>${nm}</span>`);
+    const d = src(v);
+    if (part === 3 && state.showMeas) sT.push({ name: "mæling", color: C[v], width: 1, opacity: .22, tip: false, pts: d.map(r => [r.tt, r.y_meas]) });
+    sT.push({ name: VN[v], color: C[v], width: 2.2, endDot: true, pts: d.map(r => [r.tt, r.y]) });
+    sU.push({ name: VN[v], color: C[v], width: 1.6, pts: d.map(r => [r.tt, r.u]) });
+    lg.push(`<span style="color:${C[v]}"><i></i><em>${VN[v]}</em></span>`);
   });
-  if (part === 3 && state.showMeas) lgT.push(`<span class="muted">Ljósar línur: mæling með truflun</span>`);
-  document.getElementById("lg-T").innerHTML = lgT.join("");
-  document.getElementById("lg-u").innerHTML = lgU.join("");
-  const bands = segments(part).filter(s => s[0] === "ramp").map(s => [s[1], s[2]]);
-  if (state.showSettle) bands.unshift([-1e9, 0]);
-  lineChart(document.getElementById("ch-T"), { series: sT, height: 320, yLabel: "°C", xLabel: "tími [s]", unit: " °C", bands });
-  lineChart(document.getElementById("ch-u"), { series: sU, height: 170, yLabel: "%", xLabel: "tími [s]", unit: " %", yMin: 0, yMax: 100, yTicks: 4, tipDigits: 1, bands });
+  if (part === 3 && state.showMeas) lg.push(`<span style="color:var(--muted)"><i class="faint"></i><em>Mæling með truflun</em></span>`);
+  document.getElementById("lg-T").innerHTML = lg.join("");
+  const bands = segments(part).filter(s => s[0] === "ramp").map((s, i) => [s[1], s[2], i === 0 ? "Hækkun" : "Lækkun"]);
+  if (state.showSettle) bands.unshift([-1e9, 0, "Aðlögun"]);
+  lineChart(document.getElementById("ch-T"), { series: sT, height: 340, unit: " °C", xUnit: "s", bands, bandLabels: true, aria: "Hitastig og óskgildi" });
+  lineChart(document.getElementById("ch-u"), { series: sU, height: 170, unit: "%", xUnit: "s", yMin: 0, yMax: 100, yTicks: 4, tipDigits: 1, bands, aria: "Duty cycle viftu" });
 }
 
 function renderEq(p) {
   const txt = state.files["step1_equilibrium.csv"];
-  const head = `<div class="panel-head"><div><h2>Liður 1B: Jafnvægishitastig</h2>
-    <p>Hitagjafinn er í gangi og viftan keyrð á 20%, 50% og 80% duty cycle í röð. Jafnvægi telst náð þegar hallatala síðustu 120 s er undir 0,1 °C/mín. Jafnvægishitinn er meðaltal síðustu 120 s.</p></div></div>`;
-  if (!txt) { p.innerHTML = head + `<div class="empty">Dragðu inn <span class="mono">step1_equilibrium.csv</span> (og helst <span class="mono">model.json</span>).</div>`; return; }
-  const rows = parseCSV(txt);
-  const levels = [];
+  const hero = `<section class="hero"><span class="eyebrow">Liður 1B</span><h1>Jafnvægishitastig</h1><p>Hitagjafinn er í gangi og viftan keyrð á 20%, 50% og 80% duty cycle í röð. Jafnvægi telst náð þegar hallatala síðustu 120 sekúndna fer undir 0,1 °C á mínútu.</p>${sourceLine()}</section>`;
+  if (!txt) { p.innerHTML = hero + emptyState("Engar jafnvægismælingar", `Hlaðið inn <span class="mono">step1_equilibrium.csv</span> og helst <span class="mono">model.json</span>.`); return; }
+  const rows = parseCSV(txt), levels = [];
   rows.forEach(r => { if (!levels.length || levels[levels.length - 1].duty !== r.duty) levels.push({ duty: r.duty, rows: [] }); levels[levels.length - 1].rows.push(r); });
   levels.forEach(l => { const tEnd = l.rows[l.rows.length - 1].t; l.T = mean(l.rows.filter(r => r.t >= tEnd - 120).map(r => r.temp)); l.t0 = l.rows[0].t; l.t1 = tEnd; });
   let model = null; try { model = state.files["model.json"] ? JSON.parse(state.files["model.json"]) : null; } catch {}
+  const tfor = d => { const mt = model && model.levels ? model.levels.find(x => x.duty === d) : null; const l = levels.find(x => x.duty === d); return mt ? mt.T_eq : l ? l.T : NaN; };
+  const facts = [20, 50, 80].map(d => `<div class="kpi"><span class="k">Vifta á ${d}%</span><span class="big">${fmt(tfor(d), 2)}<small>°C</small></span><span class="sub">T${d}</span></div>`).join("")
+    + (model && model.noise_amp != null ? `<div class="kpi"><span class="k">Truflun í lið 3</span><span class="big">±${fmt(model.noise_amp, 3)}<small>°C</small></span><span class="sub">3% af |T20 − T80|, 8 s</span></div>` : "");
   const eqRows = levels.map(l => {
     const mt = model && model.levels ? model.levels.find(x => x.duty === l.duty) : null;
-    return `<tr><td class="num">${l.duty}%</td><td class="num">${fmt(l.T, 2)}</td><td class="num">${mt ? fmt(mt.T_expfit, 2) : "–"}</td><td class="num">${mt ? fmt(mt.T_eq, 2) : "–"}</td><td class="num">${fmt(l.t1 - l.t0, 0)}</td></tr>`;
+    return `<tr><td class="name">${l.duty}%</td><td class="num">${fmt(l.T, 2)}</td><td class="num">${mt ? fmt(mt.T_expfit, 2) : "–"}</td><td class="num"><b>${mt ? fmt(mt.T_eq, 2) : "–"}</b></td><td class="num">${fmt(l.t1 - l.t0, 0)}</td></tr>`;
   }).join("");
-  const stepRows = model && model.steps ? model.steps.map(s => `<tr><td>${s.name}</td><td class="num">${fmt(s.K, 4)}</td><td class="num">${fmt(s.tau, 1)}</td><td class="num">${fmt(s.theta, 1)}</td><td class="num">${fmt(s.fit && s.fit.Q, 2)}</td><td class="num">${fmt(s.fit && s.fit.n1.rms, 3)}</td></tr>`).join("") : "";
-  p.innerHTML = head + `
-    <div class="card"><h3>Hitastig</h3><div class="legend"><span style="color:${css("--v2")}"><i></i>Mælt hitastig</span><span style="color:${css("--sp")}"><i class="dash"></i>Jafnvægishiti hvers þreps</span></div><div class="chart" id="ch-eqT"></div></div>
-    <div class="card"><h3>Duty cycle viftu</h3><div class="chart" id="ch-equ"></div></div>
+  const stepRows = model && model.steps ? model.steps.map(s => `<tr><td class="name">${s.name.replace("->", " → ")} %</td><td class="num">${fmt(s.K, 4)}</td><td class="num">${fmt(s.tau, 1)}</td><td class="num">${fmt(s.theta, 1)}</td><td class="num">${fmt(s.fit && s.fit.Q, 2)}</td><td class="num">${fmt(s.fit && s.fit.n1.rms, 3)}</td></tr>`).join("") : "";
+  p.innerHTML = hero + `
+    <div class="kpis">${facts}</div>
+    <div class="card"><div class="card-head"><h3>Hitastig</h3><div class="legend"><span style="color:${css("--v2")}"><i></i><em>Mælt hitastig</em></span><span style="color:${css("--sp")}"><i class="dash"></i><em>Jafnvægishiti</em></span></div></div><div class="chart" id="ch-eqT"></div></div>
+    <div class="card"><div class="card-head"><h3>Duty cycle viftu</h3></div><div class="chart" id="ch-equ"></div></div>
     <div class="grid2">
-      <div class="tablewrap"><table><thead><tr><th class="num">Duty</th><th class="num">T_eq hali [°C]</th><th class="num">Veldisspá [°C]</th><th class="num">Valið [°C]</th><th class="num">Lengd [s]</th></tr></thead><tbody>${eqRows}</tbody></table></div>
-      ${stepRows ? `<div class="tablewrap"><table><thead><tr><th>Þrep</th><th class="num">K [°C/%]</th><th class="num">τ [s]</th><th class="num">θ [s]</th><th class="num">Q</th><th class="num">RMS [°C]</th></tr></thead><tbody>${stepRows}</tbody></table></div>` : `<div class="empty">Dragðu inn <span class="mono">model.json</span> til að sjá metið yfirfærslufall (K, τ, θ).</div>`}
+      <div><h2 class="section-title">Jafnvægi</h2><div class="tablecard"><table><thead><tr><th>Duty</th><th class="num">Hali [°C]</th><th class="num">Veldisspá [°C]</th><th class="num">Valið [°C]</th><th class="num">Lengd [s]</th></tr></thead><tbody>${eqRows}</tbody></table></div></div>
+      <div><h2 class="section-title">Yfirfærslufall</h2>${stepRows ? `<div class="tablecard"><table><thead><tr><th>Þrep</th><th class="num">K [°C/%]</th><th class="num">τ [s]</th><th class="num">θ [s]</th><th class="num">Q</th><th class="num">RMS [°C]</th></tr></thead><tbody>${stepRows}</tbody></table></div>` : emptyState("Ekkert líkan", `Hlaðið inn <span class="mono">model.json</span>.`)}</div>
     </div>
-    ${model && model.T20 != null ? `<p class="note mono">T20 = ${fmt(model.T20)} °C · T50 = ${fmt(model.T50)} °C · T80 = ${fmt(model.T80)} °C · útslag truflunar (lið 3) = ${fmt(model.noise_amp, 3)} °C</p>` : ""}`;
-  const series = [{ name: "Hitastig", color: css("--v2"), width: 1.4, pts: rows.map(r => [r.t, r.temp]) }];
-  levels.forEach(l => series.push({ name: `T_eq ${l.duty}%`, color: css("--sp"), dash: "5 4", width: 1.2, tip: false, pts: [[l.t0, l.T], [l.t1, l.T]] }));
-  lineChart(document.getElementById("ch-eqT"), { series, height: 320, yLabel: "°C", xLabel: "tími [s]", unit: " °C" });
-  lineChart(document.getElementById("ch-equ"), { series: [{ name: "Duty", color: css("--accent"), step: true, pts: rows.map(r => [r.t, r.duty]) }], height: 140, yMin: 0, yMax: 100, yTicks: 4, yLabel: "%", unit: " %", tipDigits: 0 });
+    <p class="note">Hali er meðaltal síðustu 120 sekúndna. Veldisspáin er lokagildi fyrstu gráðu líkans sem er aðlagað að þrepinu. Líkanið G(s) = K e<sup>−θs</sup>/(τs + 1) er metið með t<sub>1/3</sub> og t<sub>2/3</sub> aðferðinni.</p>`;
+  const series = [{ name: "Hitastig", color: css("--v2"), width: 2, pts: rows.map(r => [r.t, r.temp]) }];
+  levels.forEach(l => series.push({ name: `T_eq ${l.duty}%`, color: css("--sp"), dash: "5 5", width: 1.3, tip: false, pts: [[l.t0, l.T], [l.t1, l.T]] }));
+  lineChart(document.getElementById("ch-eqT"), { series, height: 340, unit: " °C", xUnit: "s", aria: "Hitastig í jafnvægismælingu" });
+  lineChart(document.getElementById("ch-equ"), { series: [{ name: "Duty", color: css("--accent"), step: true, width: 2, pts: rows.map(r => [r.t, r.duty]) }], height: 150, yMin: 0, yMax: 100, yTicks: 4, unit: "%", xUnit: "s", tipDigits: 0, aria: "Duty cycle" });
 }
 
 // ---------------------------------------------------------------- skráainnlestur
+function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 3200); }
 async function addFiles(list) {
   const got = [];
   for (const f of list) {
     if (!/\.(csv|json)$/i.test(f.name)) continue;
     if (!state.dropped) { state.files = {}; state.real = true; state.dropped = true; }
-    state.files[f.name.replace(/^.*[\\/]/, "")] = await f.text();
-    got.push(f.name);
+    state.files[f.name.replace(/^.*[\\/]/, "")] = await f.text(); got.push(f.name);
   }
+  if (!got.length) { toast("Engar CSV eða JSON skrár fundust."); return; }
   state.label = `${Object.keys(state.files).length} skrár`;
-  document.getElementById("loadmsg").textContent = got.length ? `Lesið: ${got.join(", ")}` : "Engar CSV eða JSON skrár fundust.";
+  toast(`${got.length} ${got.length === 1 ? "skrá lesin" : "skrár lesnar"}`);
   const m = got.join(" ").match(/part(\d)_/); if (m) state.tab = "p" + m[1]; else if (got.some(n => /step1/.test(n))) state.tab = "eq";
   render();
 }
-const drop = document.getElementById("drop"), fileIn = document.getElementById("file");
+const fileIn = document.getElementById("file"), dropEl = document.getElementById("dropzone");
 document.getElementById("pick").onclick = () => fileIn.click();
-fileIn.onchange = () => addFiles(fileIn.files);
-document.getElementById("reset").onclick = () => { loadEmbedded(); document.getElementById("loadmsg").textContent = ""; render(); };
-["dragenter", "dragover"].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
-["dragleave", "drop"].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); if (ev === "drop" || e.target === document.documentElement) drop.classList.remove("over"); }));
-document.addEventListener("drop", e => { if (e.dataTransfer && e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
+fileIn.onchange = () => { addFiles(fileIn.files); fileIn.value = ""; };
+let dragDepth = 0;
+document.addEventListener("dragenter", e => { e.preventDefault(); dragDepth++; dropEl.hidden = false; });
+document.addEventListener("dragover", e => e.preventDefault());
+document.addEventListener("dragleave", e => { e.preventDefault(); if (--dragDepth <= 0) { dragDepth = 0; dropEl.hidden = true; } });
+document.addEventListener("drop", e => { e.preventDefault(); dragDepth = 0; dropEl.hidden = true; if (e.dataTransfer && e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
 
 let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 150); });
-if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", render);
-new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", render);
 
 loadEmbedded();
-try { const t = localStorage.getItem("tab"); if (t && TABS.some(x => x[0] === t)) state.tab = t; } catch {}
+let savedTheme = "light";
+try { savedTheme = localStorage.getItem("theme") || "light"; const t = localStorage.getItem("tab"); if (t && TABS.some(x => x[0] === t)) state.tab = t; } catch {}
+applyTheme(savedTheme);
+renderTheme();
 render();
 </script>
