@@ -47,15 +47,15 @@ PI + feedforward → mettun 0–100 % → stilla viftu → skrá í CSV.
 
 | Skrá / mappa | Hlutverk |
 |---|---|
-| `pi kóði/config.py` | Pinnar, PWM tíðni, söfnunartími T = 1 s, öryggismörk (90 °C), möppur. `--sim` í skipanalínu beinir gögnum í `data_sim/` og `figures_sim/` |
-| `pi kóði/hardware.py` | `Hardware` (raunverulegur Pi: GPIO, PWM, segulrofar, DS18B20, Hall-nemi) og `SimHardware` (hermir með sama viðmóti) |
-| `pi kóði/controller.py` | Stakræn PID með anti-windup (back-calculation), síur (`LowPass`, `Notch`), `Controller` sem sameinar síur + feedforward + gain scheduling |
-| `pi kóði/design.py` | FOPDT líkan, SIMC/lambda stilling, kyrrstöðuferill u_ss(T), `PRESETS` með v1/v2 fyrir hvern lið |
-| `pi kóði/step1_equilibrium.py` | Liður 1B: þrep 20 → 50 → 80 % og mæling á jafnvægishitastigi |
-| `pi kóði/identify.py` | Auðkenning með t1/3, t2/3 aðferð → `data/model.json` + `figures/step1.png` |
-| `pi kóði/runner.py` | Sameiginleg reglunarlykkja, óskgildisferlar, aðlögunartími (settle) og CSV skráning |
-| `pi kóði/run_part1.py`, `run_part2.py`, `run_part3.py` | Keyra lið 1/2/3 með `v1` eða `v2` |
-| `pi kóði/analyze.py` | Mælikvarðar (tafla í Markdown + `data/metrics.csv`) og gröf `figures/partN.png` |
+| `pi_kodi/config.py` | Pinnar, PWM tíðni, söfnunartími T = 1 s, öryggismörk (90 °C), möppur. `--sim` í skipanalínu beinir gögnum í `data_sim/` og `figures_sim/` |
+| `pi_kodi/hardware.py` | `Hardware` (raunverulegur Pi: GPIO, PWM, segulrofar, DS18B20, Hall-nemi) og `SimHardware` (hermir með sama viðmóti) |
+| `pi_kodi/controller.py` | Stakræn PID með anti-windup (back-calculation), síur (`LowPass`, `Notch`), `Controller` sem sameinar síur + feedforward + gain scheduling |
+| `pi_kodi/design.py` | FOPDT líkan, SIMC/lambda stilling, kyrrstöðuferill u_ss(T), `PRESETS` með v1/v2 fyrir hvern lið |
+| `pi_kodi/step1_equilibrium.py` | Liður 1B: þrep 20 → 50 → 80 % og mæling á jafnvægishitastigi |
+| `pi_kodi/identify.py` | Auðkenning með t1/3, t2/3 aðferð → `data/model.json` + `figures/step1.png` |
+| `pi_kodi/runner.py` | Sameiginleg reglunarlykkja, óskgildisferlar, aðlögunartími (settle) og CSV skráning |
+| `pi_kodi/run_part1.py`, `run_part2.py`, `run_part3.py` | Keyra lið 1/2/3 með `v1` eða `v2` |
+| `pi_kodi/analyze.py` | Mælikvarðar (tafla í Markdown + `data/metrics.csv`) og gröf `figures/partN.png` |
 | `requirements.txt` | Python pakkar |
 | `data/` | Mæligögn: `step1_equilibrium.csv`, `model.json`, `partN_vX.csv`, `partN_vX_design.json`, `metrics.csv` |
 | `figures/` | Gröf: `step1.png`, `part1.png`, `part2.png`, `part3.png` |
@@ -125,12 +125,12 @@ pip install -r requirements.txt
 
 ## Keyrsluröð
 
-Allar Python skrárnar eru í möppunni `pi kóði/` og skipanirnar hér fyrir neðan
+Allar Python skrárnar eru í möppunni `pi_kodi/` og skipanirnar hér fyrir neðan
 eru keyrðar þaðan. Gögn og gröf fara samt alltaf í `data/` og `figures/` í rót
-repo-sins. Farið fyrst inn í möppuna (gæsalappirnar þarf vegna bilsins í nafninu):
+repo-sins. Farið fyrst inn í möppuna:
 
 ```bash
-cd "pi kóði"
+cd pi_kodi
 ```
 
  Hægt er að stöðva hvenær sem er

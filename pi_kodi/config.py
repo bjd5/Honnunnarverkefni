@@ -30,7 +30,7 @@ COOLDOWN_S = 60.0         # [s] vifta keyrir á 100% í lok keyrslu til að kæl
 # --- Skrár ------------------------------------------------------------------
 # Með --sim fara öll gögn í sér möppur svo hermigögn skrifi aldrei yfir
 # raunverulegar mælingar.
-# Slóðir eru miðaðar við rót repo-sins (möppuna fyrir ofan "pi kóði"), svo
+# Slóðir eru miðaðar við rót repo-sins (möppuna fyrir ofan "pi_kodi"), svo
 # það skiptir ekki máli úr hvaða möppu forritin eru keyrð.
 import os as _os
 import sys as _sys
