@@ -1,0 +1,467 @@
+<title>Hitastýring mælaborð</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&display=swap">
+<style>
+/* Layout: mælitækjaborð - haus með gagnauppsprettu, flipar fyrir hvern lið,
+   lykiltölur efst, svo gröf (hiti yfir stýrimerki) og nákvæm tafla. */
+:root {
+  --bg: #f2f4f6; --surface: #ffffff; --fg: #17212b; --muted: #5a6774; --line: #d8dde3;
+  --v1: #c8424f; --v2: #2a67ad; --sp: #17212b; --meas: #8a96a3;
+  --good: #2c7a50; --good-bg: #e3f2e9; --bad: #b4521d; --bad-bg: #fbeadf;
+  --accent: #0e6f68; --accent-bg: #dff1ef;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-head: "IBM Plex Sans Condensed", "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1419; --surface: #172029; --fg: #e5ebf1; --muted: #93a0ad; --line: #2b3641;
+  --v1: #f27983; --v2: #6db3ff; --sp: #e5ebf1; --meas: #6b7785;
+  --good: #5fd08a; --good-bg: #173326; --bad: #f2a065; --bad-bg: #3a2516;
+  --accent: #39cfc1; --accent-bg: #133533; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f1419; --surface: #172029; --fg: #e5ebf1; --muted: #93a0ad; --line: #2b3641;
+  --v1: #f27983; --v2: #6db3ff; --sp: #e5ebf1; --meas: #6b7785;
+  --good: #5fd08a; --good-bg: #173326; --bad: #f2a065; --bad-bg: #3a2516;
+  --accent: #39cfc1; --accent-bg: #133533; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px }
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 20px }
+h1, h2, h3 { font-family: var(--font-head); font-weight: 600; margin: 0; text-wrap: balance; letter-spacing: .01em }
+h1 { font-size: 1.75rem } h2 { font-size: 1.25rem } h3 { font-size: 1rem }
+.mono, td.num, .kpi .val { font-family: var(--font-mono); font-variant-numeric: tabular-nums }
+.muted { color: var(--muted) }
+.label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 500 }
+
+header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between }
+header .titles { display: grid; gap: 4px; min-width: 0 }
+.source { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem }
+.pill { display: inline-block; white-space: nowrap; padding: 2px 10px; border-radius: 999px; font-size: .78rem; font-weight: 500 }
+.pill.sim { background: var(--bad-bg); color: var(--bad) }
+.pill.real { background: var(--good-bg); color: var(--good) }
+
+.drop { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; border: 1.5px dashed var(--line); border-radius: 10px; padding: 12px 14px; background: var(--surface) }
+.drop.over { border-color: var(--accent); background: var(--accent-bg) }
+.drop p { margin: 0; flex: 1 1 260px; min-width: 0; font-size: .88rem; color: var(--muted) }
+button, .btn { font: inherit; font-size: .88rem; font-weight: 500; border-radius: 8px; padding: 7px 14px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--surface) }
+button.ghost { background: transparent; color: var(--accent) }
+button:focus-visible, .tab:focus-visible, input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px }
+#loadmsg { font-size: .85rem }
+
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto }
+.tab { font: inherit; background: none; border: 0; border-bottom: 2.5px solid transparent; color: var(--muted); padding: 8px 14px; cursor: pointer; font-weight: 500; white-space: nowrap; border-radius: 0 }
+.tab[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent) }
+.tab .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-left: 6px; background: var(--line); vertical-align: middle }
+.tab .dot.on { background: var(--accent) }
+
+.panel { display: grid; gap: 18px }
+.panel-head { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; justify-content: space-between }
+.panel-head p { margin: 4px 0 0; max-width: 70ch; color: var(--muted); font-size: .9rem }
+.toggles { display: flex; gap: 16px; flex-wrap: wrap; font-size: .88rem }
+.toggles label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; min-width: 0 }
+.kpi .row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px }
+.kpi .val { font-size: 1.05rem }
+.kpi .ver { font-size: .78rem; font-weight: 600 }
+.ver.v1 { color: var(--v1) } .ver.v2 { color: var(--v2) }
+.chg { font-family: var(--font-mono); font-size: .78rem; padding: 1px 8px; border-radius: 999px; justify-self: start }
+.chg.good { background: var(--good-bg); color: var(--good) }
+.chg.bad { background: var(--bad-bg); color: var(--bad) }
+.chg.neutral { background: var(--bg); color: var(--muted) }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 14px 8px; min-width: 0 }
+.card h3 { margin-bottom: 6px }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .82rem; color: var(--muted); margin-bottom: 4px }
+.legend span { display: inline-flex; align-items: center; gap: 6px }
+.legend i { display: inline-block; width: 18px; height: 0; border-top: 2.5px solid currentColor }
+.legend i.dash { border-top-style: dashed }
+.chart { position: relative; width: 100% }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible }
+.chart text { fill: var(--muted); font-family: var(--font-mono); font-size: 11px }
+.chart .grid { stroke: var(--line); stroke-width: 1 }
+.chart .axis { stroke: var(--muted); stroke-width: 1 }
+.chart .band { fill: var(--accent-bg); opacity: .55 }
+.chart .cross { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3 }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: .78rem; font-family: var(--font-mono); box-shadow: 0 4px 14px rgb(0 0 0 / .12); white-space: nowrap; z-index: 2 }
+.tip b { font-family: var(--font-body); font-weight: 600 }
+
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px }
+table { border-collapse: collapse; width: 100%; font-size: .87rem }
+th, td { padding: 7px 12px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap }
+th { font-weight: 600; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted) }
+td.num, th.num { text-align: right }
+tr:last-child td { border-bottom: 0 }
+td .hint { color: var(--muted); font-size: .8rem; margin-left: 6px }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px }
+.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 10px; padding: 28px; text-align: center; color: var(--muted) }
+.note { font-size: .85rem; color: var(--muted); max-width: 80ch }
+@media (max-width: 480px) { h1 { font-size: 1.4rem } .kpis { grid-template-columns: 1fr 1fr } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="titles">
+      <span class="label">IÐN303G · hönnunarverkefni</span>
+      <h1>Hitastýring: mælaborð</h1>
+      <div class="source"><span class="muted">Gögn:</span> <span id="srcpill" class="pill sim">Sýnigögn úr hermi</span> <span id="srcinfo" class="muted mono"></span></div>
+    </div>
+  </header>
+
+  <div class="drop" id="drop">
+    <p>Dragðu CSV/JSON skrárnar úr <span class="mono">data/</span> möppunni hingað (t.d. <span class="mono">part2_v1.csv</span>, <span class="mono">step1_equilibrium.csv</span>, <span class="mono">model.json</span>). Skráarnöfnin segja til um hvaða lið gögnin tilheyra.</p>
+    <input type="file" id="file" multiple accept=".csv,.json" hidden>
+    <button id="pick">Velja skrár</button>
+    <button id="reset" class="ghost">Sýnigögn</button>
+    <span id="loadmsg" class="muted"></span>
+  </div>
+
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+  <main id="panel" class="panel"></main>
+</div>
+
+<script id="embedded-data" type="application/json">__DATA__</script>
+<script>
+"use strict";
+// ---------------------------------------------------------------- gögn
+const EMB = JSON.parse(document.getElementById("embedded-data").textContent);
+let state = { files: {}, label: "", real: false, tab: "p1", showSettle: false, showMeas: true };
+
+function loadEmbedded() {
+  state.files = Object.assign({}, EMB.files || {});
+  state.label = EMB.label || "";
+  state.real = !!EMB.real;
+  state.dropped = false;
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  const head = lines[0].split(",").map(s => s.trim());
+  return lines.slice(1).filter(l => l.trim()).map(l => {
+    const c = l.split(","); const o = {};
+    head.forEach((h, i) => { const v = (c[i] ?? "").trim(); o[h] = v === "" ? null : (isNaN(+v) ? v : +v); });
+    return o;
+  });
+}
+
+function runData(part, v) {
+  const txt = state.files[`part${part}_${v}.csv`];
+  if (!txt) return null;
+  const rows = parseCSV(txt);
+  const run = rows.filter(r => r.phase === "run");
+  if (!run.length) return null;
+  const t0abs = run[0].t_abs - run[0].t;
+  return { all: rows.map(r => ({ ...r, tt: r.t_abs - t0abs })), run };
+}
+
+function design(part, v) {
+  const txt = state.files[`part${part}_${v}_design.json`];
+  try { return txt ? JSON.parse(txt) : null; } catch { return null; }
+}
+
+// ---------------------------------------------------------------- mælikvarðar (sama og analyze.py)
+const BAND = 0.5;
+function segments(part) {
+  if (part === 1) return [["hold", 0, 240]];
+  return [["hold", 0, 180], ["ramp", 180, 300], ["hold", 300, 480], ["ramp", 480, 600], ["hold", 600, 780]];
+}
+const mean = a => a.reduce((s, x) => s + x, 0) / (a.length || NaN);
+function settling(ts, es) {
+  let last = -1;
+  es.forEach((e, i) => { if (Math.abs(e) >= BAND) last = i; });
+  if (last < 0) return 0;
+  if (last === es.length - 1) return NaN;
+  return ts[last + 1];
+}
+function metrics(part, run) {
+  const t = run.map(r => r.t), r = run.map(x => x.r), y = run.map(x => x.y), u = run.map(x => x.u);
+  const e = r.map((ri, i) => ri - y[i]);
+  const du = u.slice(1).map((x, i) => x - u[i]);
+  let iae = 0; for (let i = 1; i < t.length; i++) iae += Math.abs(e[i]) * (t[i] - t[i - 1]);
+  const mdu = mean(du);
+  const m = [
+    ["IAE", "°C·s", iae, "Heildarskekkja yfir keyrsluna"],
+    ["RMS e", "°C", Math.sqrt(mean(e.map(x => x * x))), "Kvaðratmeðaltal skekkju"],
+    ["max |e|", "°C", Math.max(...e.map(Math.abs)), "Mesta frávik frá óskgildi"],
+    ["TV(u)", "%", du.reduce((s, x) => s + Math.abs(x), 0), "Heildarbreytileiki stýrimerkis (slit á viftu)"],
+    ["std(Δu)", "%", Math.sqrt(mean(du.map(x => (x - mdu) ** 2))), "Flökt stýrimerkis milli sýna"],
+    ["meðal u", "%", mean(u), "Meðal duty cycle", "neutral"],
+  ];
+  const segs = segments(part);
+  const names = { hold: "fast", ramp: "rampur" };
+  segs.forEach(([kind, t0, t1], i) => {
+    const idx = t.map((ti, k) => (ti >= t0 && ti < t1) ? k : -1).filter(k => k >= 0);
+    if (!idx.length) return;
+    const lab = `${kind === "hold" ? "H" : "R"}${i + 1}`;
+    const span = `${t0}–${t1} s, ${names[kind]}`;
+    if (kind === "hold") {
+      const tail = idx.filter(k => t[k] >= t1 - 60);
+      m.push([`e_ss ${lab}`, "°C", mean(tail.map(k => e[k])), `Skekkja í jafnvægi, síðustu 60 s (${span})`]);
+      if (part > 1 && i > 0) {
+        m.push([`t_s ${lab}`, "s", settling(idx.map(k => t[k] - t0), idx.map(k => e[k])), `Aðlögunartími að ±${BAND} °C (${span})`]);
+        const prev = segs[i - 1];
+        const kPrev = t.findIndex(ti => ti >= prev[1]);
+        const dir = Math.sign(r[idx[0]] - r[Math.max(kPrev, 0)]);
+        const os = Math.max(0, ...idx.map(k => dir * (y[k] - r[k])));
+        m.push([`yfirskot ${lab}`, "°C", os, `Mesta frávik handan óskgildis eftir ramp (${span})`]);
+      }
+    } else {
+      m.push([`meðal e ${lab}`, "°C", mean(idx.map(k => e[k])), `Meðalskekkja / eftirdragi í rampi (${span})`]);
+    }
+  });
+  if (part === 1) m.push(["t_s", "s", settling(t, e), `Aðlögunartími að ±${BAND} °C`]);
+  return m;
+}
+function change(a, b, unit) {
+  const A = Math.abs(a), B = Math.abs(b);
+  if (!isFinite(A) || !isFinite(B) || A < 1e-3) return null;
+  // prósentur af nær-núll skekkju (< 0.05 °C, undir upplausn nemans) segja ekkert
+  if (unit === "°C" && Math.max(A, B) < 0.05) return null;
+  return 100 * (B - A) / A;
+}
+const fmt = (x, d = 2) => (x === null || x === undefined || !isFinite(x)) ? "–" : x.toFixed(d);
+
+// ---------------------------------------------------------------- graf (SVG)
+function niceTicks(lo, hi, n = 5) {
+  if (!(hi > lo)) { hi = lo + 1; }
+  const raw = (hi - lo) / n, p = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(k => k * p).find(s => s >= raw);
+  const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(10));
+  return out;
+}
+function lineChart(el, cfg) {
+  el.innerHTML = "";
+  const W = Math.max(300, el.clientWidth || 800), H = cfg.height || 300;
+  const m = { l: 48, r: 12, t: 10, b: 30 };
+  let xs = [], ys = [];
+  cfg.series.forEach(s => s.pts.forEach(([x, y]) => { if (isFinite(x) && isFinite(y)) { xs.push(x); ys.push(y); } }));
+  if (!xs.length) { el.innerHTML = '<div class="empty">Engin gögn</div>'; return; }
+  let x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = cfg.yMin ?? Math.min(...ys), y1 = cfg.yMax ?? Math.max(...ys);
+  const pad = (y1 - y0) * .06 || .5; if (cfg.yMin === undefined) y0 -= pad; if (cfg.yMax === undefined) y1 += pad;
+  const yt = niceTicks(y0, y1, cfg.yTicks || 5), xt = niceTicks(x0, x1, W < 500 ? 4 : 8);
+  y0 = Math.min(y0, yt[0]); y1 = Math.max(y1, yt[yt.length - 1]);
+  const sx = x => m.l + (x - x0) / (x1 - x0 || 1) * (W - m.l - m.r);
+  const sy = y => H - m.b - (y - y0) / (y1 - y0 || 1) * (H - m.t - m.b);
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  let s = "";
+  (cfg.bands || []).forEach(([a, b]) => { s += `<rect class="band" x="${sx(Math.max(a, x0))}" y="${m.t}" width="${Math.max(0, sx(Math.min(b, x1)) - sx(Math.max(a, x0)))}" height="${H - m.t - m.b}" fill="currentColor"/>`; });
+  yt.forEach(v => { s += `<line class="grid" x1="${m.l}" x2="${W - m.r}" y1="${sy(v)}" y2="${sy(v)}"/><text x="${m.l - 6}" y="${sy(v) + 4}" text-anchor="end">${+v.toFixed(2)}</text>`; });
+  xt.forEach(v => { s += `<line class="grid" x1="${sx(v)}" x2="${sx(v)}" y1="${m.t}" y2="${H - m.b}"/><text x="${sx(v)}" y="${H - m.b + 16}" text-anchor="middle">${+v.toFixed(1)}</text>`; });
+  s += `<line class="axis" x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}"/>`;
+  if (cfg.yLabel) s += `<text x="4" y="${m.t + 2}" dominant-baseline="hanging">${cfg.yLabel}</text>`;
+  if (cfg.xLabel) s += `<text x="${W - m.r}" y="${H - 2}" text-anchor="end">${cfg.xLabel}</text>`;
+  cfg.series.forEach(se => {
+    const pts = se.pts.filter(([x, y]) => isFinite(x) && isFinite(y));
+    if (!pts.length) return;
+    let d = "";
+    if (se.step) pts.forEach(([x, y], i) => { d += i ? `H${sx(x).toFixed(1)}V${sy(y).toFixed(1)}` : `M${sx(x).toFixed(1)},${sy(y).toFixed(1)}`; });
+    else d = "M" + pts.map(([x, y]) => `${sx(x).toFixed(1)},${sy(y).toFixed(1)}`).join("L");
+    s += `<path d="${d}" fill="none" stroke="${se.color}" stroke-width="${se.width || 1.8}" ${se.dash ? `stroke-dasharray="${se.dash}"` : ""} opacity="${se.opacity ?? 1}" stroke-linejoin="round"/>`;
+  });
+  s += `<line class="cross" id="cross" x1="0" x2="0" y1="${m.t}" y2="${H - m.b}" visibility="hidden"/>`;
+  svg.innerHTML = s;
+  el.appendChild(svg);
+  const tip = document.createElement("div"); tip.className = "tip"; tip.hidden = true; el.appendChild(tip);
+  const cross = svg.querySelector("#cross");
+  const nearest = (pts, x) => { let lo = 0, hi = pts.length - 1; while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (pts[mid][0] < x) lo = mid; else hi = mid; } return Math.abs(pts[lo][0] - x) < Math.abs(pts[hi][0] - x) ? pts[lo] : pts[hi]; };
+  function move(ev) {
+    const rect = svg.getBoundingClientRect();
+    const px = (ev.clientX - rect.left) / rect.width * W;
+    if (px < m.l || px > W - m.r) { leave(); return; }
+    const x = x0 + (px - m.l) / (W - m.l - m.r) * (x1 - x0);
+    cross.setAttribute("x1", px); cross.setAttribute("x2", px); cross.setAttribute("visibility", "visible");
+    let h = `<b>t = ${x.toFixed(1)} s</b>`;
+    cfg.series.filter(se => se.tip !== false && se.pts.length).forEach(se => {
+      const p = nearest(se.pts, x);
+      h += `<br><span style="color:${se.color}">■</span> ${se.name}: ${fmt(p[1], cfg.tipDigits ?? 2)}${cfg.unit || ""}`;
+    });
+    tip.innerHTML = h; tip.hidden = false;
+    const left = (px / W) * rect.width;
+    tip.style.top = "8px";
+    tip.style.left = (left > rect.width / 2 ? left - tip.offsetWidth - 12 : left + 12) + "px";
+  }
+  function leave() { tip.hidden = true; cross.setAttribute("visibility", "hidden"); }
+  svg.addEventListener("pointermove", move); svg.addEventListener("pointerleave", leave);
+}
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+// ---------------------------------------------------------------- flipar
+const TABS = [
+  ["eq", "1B Jafnvægi", () => !!state.files["step1_equilibrium.csv"]],
+  ["p1", "Liður 1", () => runData(1, "v1") || runData(1, "v2")],
+  ["p2", "Liður 2", () => runData(2, "v1") || runData(2, "v2")],
+  ["p3", "Liður 3", () => runData(3, "v1") || runData(3, "v2")],
+];
+const DESC = {
+  1: ["Halda föstu óskgildi", "Óskgildið er jafnvægishitastigið við 50% duty cycle, haldið í 240 s."],
+  2: ["Fylgja breytingum í óskgildi", "T50 í 180 s, rampur upp í T20 á 120 s, T20 í 180 s, rampur niður í T80 á 120 s, T80 í 180 s."],
+  3: ["Breytingar í óskgildi með truflun á mælingu", "Sami ferill og í lið 2. Sínustruflun með útslag 3% af |T20 − T80| og sveiflutíma 8 s er bætt við mælinguna áður en stýrimerkið er reiknað."],
+};
+
+function renderTabs() {
+  const nav = document.getElementById("tabs");
+  nav.innerHTML = "";
+  TABS.forEach(([id, name, has]) => {
+    const b = document.createElement("button");
+    b.className = "tab"; b.setAttribute("role", "tab"); b.id = "tab-" + id;
+    b.setAttribute("aria-selected", state.tab === id);
+    b.innerHTML = `${name}<span class="dot ${has() ? "on" : ""}" title="${has() ? "Gögn til" : "Engin gögn"}"></span>`;
+    b.onclick = () => { state.tab = id; try { localStorage.setItem("tab", id); } catch {} render(); };
+    nav.appendChild(b);
+  });
+}
+
+function render() {
+  document.getElementById("srcpill").className = "pill " + (state.real ? "real" : "sim");
+  document.getElementById("srcpill").textContent = state.dropped ? "Innlesnar skrár" : state.real ? "Ykkar mælingar" : "Sýnigögn úr hermi";
+  document.getElementById("srcinfo").textContent = state.label;
+  renderTabs();
+  const p = document.getElementById("panel");
+  if (state.tab === "eq") renderEq(p); else renderPart(p, +state.tab.slice(1));
+}
+
+function renderPart(p, part) {
+  const runs = { v1: runData(part, "v1"), v2: runData(part, "v2") };
+  const [title, desc] = DESC[part];
+  if (!runs.v1 && !runs.v2) {
+    p.innerHTML = `<div class="panel-head"><div><h2>Liður ${part}: ${title}</h2><p>${desc}</p></div></div>
+      <div class="empty">Engin gögn fyrir lið ${part}. Dragðu inn <span class="mono">part${part}_v1.csv</span> og <span class="mono">part${part}_v2.csv</span>.</div>`;
+    return;
+  }
+  const vers = ["v1", "v2"].filter(v => runs[v]);
+  const ms = {}; vers.forEach(v => ms[v] = metrics(part, runs[v].run));
+  const both = vers.length === 2;
+  const kpiKeys = ["IAE", "RMS e", "max |e|", "TV(u)"];
+  const kpis = kpiKeys.map(k => {
+    const row = v => ms[v].find(x => x[0] === k);
+    const r0 = row(vers[0]);
+    const vals = vers.map(v => `<div class="row"><span class="ver ${v}">${v === "v1" ? "Upprunaleg" : "Endurbætt"}</span><span class="val">${fmt(row(v)[2], k === "TV(u)" ? 0 : 2)}</span></div>`).join("");
+    let chip = "";
+    if (both) {
+      const c = change(row("v1")[2], row("v2")[2]);
+      chip = c === null ? "" : `<span class="chg ${c < -1 ? "good" : c > 1 ? "bad" : "neutral"}">${c > 0 ? "+" : ""}${c.toFixed(0)}% með v2</span>`;
+    }
+    return `<div class="kpi"><span class="label">${k} [${r0[1]}]</span>${vals}${chip}</div>`;
+  }).join("");
+
+  const rows = ms[vers[0]].map((x, i) => {
+    const vals = vers.map(v => `<td class="num">${fmt(ms[v][i][2], x[1] === "s" || x[0] === "TV(u)" ? 1 : 3)}</td>`).join("");
+    let c = "";
+    if (both) {
+      const ch = x[4] === "neutral" ? null : change(ms.v1[i][2], ms.v2[i][2], x[1]);
+      c = `<td class="num">${ch === null ? "–" : `<span class="chg ${ch < -1 ? "good" : ch > 1 ? "bad" : "neutral"}">${ch > 0 ? "+" : ""}${ch.toFixed(0)}%</span>`}</td>`;
+    }
+    return `<tr><td>${x[0]} <span class="hint">${x[3]}</span></td><td class="muted">${x[1]}</td>${vals}${c}</tr>`;
+  }).join("");
+
+  const dz = vers.map(v => { const d = design(part, v); return d ? `<tr><td class="ver ${v}">${v}</td><td>${d.description || ""}</td><td class="num">${fmt(d.kc, 2)}</td><td class="num">${fmt(d.ti, 1)}</td><td class="num">${fmt(d.tc, 1)}</td><td class="num">${fmt(d.theta_eff, 1)}</td><td class="num">${fmt(d.preview, 1)}</td></tr>` : ""; }).join("");
+
+  p.innerHTML = `
+    <div class="panel-head">
+      <div><h2>Liður ${part}: ${title}</h2><p>${desc}</p></div>
+      <div class="toggles">
+        <label><input type="checkbox" id="cb-settle" ${state.showSettle ? "checked" : ""}> Sýna aðlögun (t &lt; 0)</label>
+        ${part === 3 ? `<label><input type="checkbox" id="cb-meas" ${state.showMeas ? "checked" : ""}> Sýna mælingu með truflun</label>` : ""}
+      </div>
+    </div>
+    <div class="kpis">${kpis}</div>
+    <div class="card"><h3>Hitastig</h3><div class="legend" id="lg-T"></div><div class="chart" id="ch-T"></div></div>
+    <div class="card"><h3>Stýrimerki: duty cycle viftu</h3><div class="legend" id="lg-u"></div><div class="chart" id="ch-u"></div></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Mælikvarði</th><th>Eining</th>${vers.map(v => `<th class="num ver ${v}">${v}</th>`).join("")}${both ? '<th class="num">Breyting</th>' : ""}</tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    <p class="note">Skekkja e = r − y er reiknuð með raunverulegu mældu hitastigi, án viðbættrar truflunar. Breyting er reiknuð á tölugildum: neikvæð tala þýðir að v2 sé betri. Engin prósenta er sýnd þegar báðar skekkjur eru undir 0,05 °C (minna en upplausn nemans). H = fastur bútur, R = rampur.</p>
+    ${dz ? `<div class="tablewrap"><table><thead><tr><th>Útgáfa</th><th>Stýring</th><th class="num">Kc [%/°C]</th><th class="num">Ti [s]</th><th class="num">tc [s]</th><th class="num">θ virkt [s]</th><th class="num">Forsýn [s]</th></tr></thead><tbody>${dz}</tbody></table></div>` : ""}`;
+
+  const cb = document.getElementById("cb-settle");
+  cb.onchange = () => { state.showSettle = cb.checked; render(); };
+  const cm = document.getElementById("cb-meas");
+  if (cm) cm.onchange = () => { state.showMeas = cm.checked; render(); };
+
+  const C = { v1: css("--v1"), v2: css("--v2"), sp: css("--sp") };
+  const src = v => state.showSettle ? runs[v].all : runs[v].run.map(r => ({ ...r, tt: r.t }));
+  const ref = src(vers[0]);
+  const sT = [{ name: "Óskgildi r", color: C.sp, dash: "6 4", width: 1.6, pts: ref.map(r => [r.tt, r.r]) }];
+  const sU = [];
+  const lgT = [`<span style="color:${C.sp}"><i class="dash"></i>Óskgildi</span>`], lgU = [];
+  vers.forEach(v => {
+    const d = src(v), nm = v === "v1" ? "Upprunaleg (v1)" : "Endurbætt (v2)";
+    if (part === 3 && state.showMeas) sT.push({ name: `${v} mæling+truflun`, color: C[v], width: 1, opacity: .28, tip: false, pts: d.map(r => [r.tt, r.y_meas]) });
+    sT.push({ name: nm, color: C[v], pts: d.map(r => [r.tt, r.y]) });
+    sU.push({ name: nm, color: C[v], width: 1.3, pts: d.map(r => [r.tt, r.u]) });
+    lgT.push(`<span style="color:${C[v]}"><i></i>${nm}</span>`); lgU.push(`<span style="color:${C[v]}"><i></i>${nm}</span>`);
+  });
+  if (part === 3 && state.showMeas) lgT.push(`<span class="muted">Ljósar línur: mæling með truflun</span>`);
+  document.getElementById("lg-T").innerHTML = lgT.join("");
+  document.getElementById("lg-u").innerHTML = lgU.join("");
+  const bands = segments(part).filter(s => s[0] === "ramp").map(s => [s[1], s[2]]);
+  if (state.showSettle) bands.unshift([-1e9, 0]);
+  lineChart(document.getElementById("ch-T"), { series: sT, height: 320, yLabel: "°C", xLabel: "tími [s]", unit: " °C", bands });
+  lineChart(document.getElementById("ch-u"), { series: sU, height: 170, yLabel: "%", xLabel: "tími [s]", unit: " %", yMin: 0, yMax: 100, yTicks: 4, tipDigits: 1, bands });
+}
+
+function renderEq(p) {
+  const txt = state.files["step1_equilibrium.csv"];
+  const head = `<div class="panel-head"><div><h2>Liður 1B: Jafnvægishitastig</h2>
+    <p>Hitagjafinn er í gangi og viftan keyrð á 20%, 50% og 80% duty cycle í röð. Jafnvægi telst náð þegar hallatala síðustu 120 s er undir 0,1 °C/mín. Jafnvægishitinn er meðaltal síðustu 120 s.</p></div></div>`;
+  if (!txt) { p.innerHTML = head + `<div class="empty">Dragðu inn <span class="mono">step1_equilibrium.csv</span> (og helst <span class="mono">model.json</span>).</div>`; return; }
+  const rows = parseCSV(txt);
+  const levels = [];
+  rows.forEach(r => { if (!levels.length || levels[levels.length - 1].duty !== r.duty) levels.push({ duty: r.duty, rows: [] }); levels[levels.length - 1].rows.push(r); });
+  levels.forEach(l => { const tEnd = l.rows[l.rows.length - 1].t; l.T = mean(l.rows.filter(r => r.t >= tEnd - 120).map(r => r.temp)); l.t0 = l.rows[0].t; l.t1 = tEnd; });
+  let model = null; try { model = state.files["model.json"] ? JSON.parse(state.files["model.json"]) : null; } catch {}
+  const eqRows = levels.map(l => {
+    const mt = model && model.levels ? model.levels.find(x => x.duty === l.duty) : null;
+    return `<tr><td class="num">${l.duty}%</td><td class="num">${fmt(l.T, 2)}</td><td class="num">${mt ? fmt(mt.T_expfit, 2) : "–"}</td><td class="num">${mt ? fmt(mt.T_eq, 2) : "–"}</td><td class="num">${fmt(l.t1 - l.t0, 0)}</td></tr>`;
+  }).join("");
+  const stepRows = model && model.steps ? model.steps.map(s => `<tr><td>${s.name}</td><td class="num">${fmt(s.K, 4)}</td><td class="num">${fmt(s.tau, 1)}</td><td class="num">${fmt(s.theta, 1)}</td><td class="num">${fmt(s.fit && s.fit.Q, 2)}</td><td class="num">${fmt(s.fit && s.fit.n1.rms, 3)}</td></tr>`).join("") : "";
+  p.innerHTML = head + `
+    <div class="card"><h3>Hitastig</h3><div class="legend"><span style="color:${css("--v2")}"><i></i>Mælt hitastig</span><span style="color:${css("--sp")}"><i class="dash"></i>Jafnvægishiti hvers þreps</span></div><div class="chart" id="ch-eqT"></div></div>
+    <div class="card"><h3>Duty cycle viftu</h3><div class="chart" id="ch-equ"></div></div>
+    <div class="grid2">
+      <div class="tablewrap"><table><thead><tr><th class="num">Duty</th><th class="num">T_eq hali [°C]</th><th class="num">Veldisspá [°C]</th><th class="num">Valið [°C]</th><th class="num">Lengd [s]</th></tr></thead><tbody>${eqRows}</tbody></table></div>
+      ${stepRows ? `<div class="tablewrap"><table><thead><tr><th>Þrep</th><th class="num">K [°C/%]</th><th class="num">τ [s]</th><th class="num">θ [s]</th><th class="num">Q</th><th class="num">RMS [°C]</th></tr></thead><tbody>${stepRows}</tbody></table></div>` : `<div class="empty">Dragðu inn <span class="mono">model.json</span> til að sjá metið yfirfærslufall (K, τ, θ).</div>`}
+    </div>
+    ${model && model.T20 != null ? `<p class="note mono">T20 = ${fmt(model.T20)} °C · T50 = ${fmt(model.T50)} °C · T80 = ${fmt(model.T80)} °C · útslag truflunar (lið 3) = ${fmt(model.noise_amp, 3)} °C</p>` : ""}`;
+  const series = [{ name: "Hitastig", color: css("--v2"), width: 1.4, pts: rows.map(r => [r.t, r.temp]) }];
+  levels.forEach(l => series.push({ name: `T_eq ${l.duty}%`, color: css("--sp"), dash: "5 4", width: 1.2, tip: false, pts: [[l.t0, l.T], [l.t1, l.T]] }));
+  lineChart(document.getElementById("ch-eqT"), { series, height: 320, yLabel: "°C", xLabel: "tími [s]", unit: " °C" });
+  lineChart(document.getElementById("ch-equ"), { series: [{ name: "Duty", color: css("--accent"), step: true, pts: rows.map(r => [r.t, r.duty]) }], height: 140, yMin: 0, yMax: 100, yTicks: 4, yLabel: "%", unit: " %", tipDigits: 0 });
+}
+
+// ---------------------------------------------------------------- skráainnlestur
+async function addFiles(list) {
+  const got = [];
+  for (const f of list) {
+    if (!/\.(csv|json)$/i.test(f.name)) continue;
+    if (!state.dropped) { state.files = {}; state.real = true; state.dropped = true; }
+    state.files[f.name.replace(/^.*[\\/]/, "")] = await f.text();
+    got.push(f.name);
+  }
+  state.label = `${Object.keys(state.files).length} skrár`;
+  document.getElementById("loadmsg").textContent = got.length ? `Lesið: ${got.join(", ")}` : "Engar CSV eða JSON skrár fundust.";
+  const m = got.join(" ").match(/part(\d)_/); if (m) state.tab = "p" + m[1]; else if (got.some(n => /step1/.test(n))) state.tab = "eq";
+  render();
+}
+const drop = document.getElementById("drop"), fileIn = document.getElementById("file");
+document.getElementById("pick").onclick = () => fileIn.click();
+fileIn.onchange = () => addFiles(fileIn.files);
+document.getElementById("reset").onclick = () => { loadEmbedded(); document.getElementById("loadmsg").textContent = ""; render(); };
+["dragenter", "dragover"].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); if (ev === "drop" || e.target === document.documentElement) drop.classList.remove("over"); }));
+document.addEventListener("drop", e => { if (e.dataTransfer && e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
+
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 150); });
+if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", render);
+new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+loadEmbedded();
+try { const t = localStorage.getItem("tab"); if (t && TABS.some(x => x[0] === t)) state.tab = t; } catch {}
+render();
+</script>
