@@ -122,8 +122,16 @@ class Controller:
     def reset(self, y0, r0, u0):
         for f in self.filters:
             f.reset(y0)
+        if self.schedule:
+            self.pid.kc, self.pid.ti = self.schedule(r0)
         ff = self.feedforward(r0, 0.0) if self.feedforward else 0.0
-        self.pid.reset(y0, i0=u0 - ff)  # "bumpless" ræsing: u = u0 í byrjun
+        pid = self.pid
+        p0 = pid.kc * pid.sign * (pid.b * r0 - y0)
+        # "bumpless" ræsing: u = u0 í byrjun. Heildunin er takmörkuð við
+        # mögulegt svið stýrimerkis, annars fengi hún risastórt upphafsgildi
+        # ef ræst er frá köldu kerfi (stórt P) = innbyggt windup.
+        i0 = min(max(u0 - ff - p0, pid.umin - ff), pid.umax - ff)
+        pid.reset(y0, i0=i0)
 
     def update(self, r, y, dt, r_ff=None, rdot_ff=0.0):
         yf = y

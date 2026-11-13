@@ -109,6 +109,7 @@ def main():
     meta_path = os.path.splitext(args.data)[0] + "_meta.json"
     meta = json.load(open(meta_path)) if os.path.exists(meta_path) else {"levels": []}
     stops = {lv["duty"]: lv["stop"] for lv in meta.get("levels", [])}
+    t_starts = [lv["t_start"] for lv in meta.get("levels", [])]
 
     duties = []
     for u in d["duty"]:
@@ -136,14 +137,21 @@ def main():
     steps = []
     for i in range(len(segs)):
         u1, t, y = segs[i]
+        # Tími mældur frá því að þrepið var sett á (t_start úr meta), ekki frá
+        # fyrstu mælingu bútsins (sem kemur ~1.75 s seinna) - annars er
+        # dauðtíminn theta vanmetinn.
+        t_step = t_starts[i] if i < len(t_starts) else t[0]
         if i == 0:
             y0, u0 = float(np.mean(y[:5])), None   # frá umhverfishita, ekkert du
+            y0_eq = y0
         else:
             u0 = segs[i - 1][0]
-            y0 = levels[i - 1]["T_eq"]
+            y0 = float(np.mean(segs[i - 1][2][-5:]))  # raunhiti þegar þrepið kom
+            y0_eq = levels[i - 1]["T_eq"]
         y_inf = levels[i]["T_eq"]
-        res = step_identify(t - t[0], y, y0, y_inf)
-        K = (y_inf - y0) / (u1 - u0) if u0 is not None else None
+        res = step_identify(t - t_step, y, y0, y_inf)
+        # kyrrstöðumögnun út frá jafnvægisgildum
+        K = (y_inf - y0_eq) / (u1 - u0) if u0 is not None else None
         name = ("%g->%g" % (u0, u1)) if u0 is not None else ("ræsing->%g" % u1)
         print("%-10s dT=%+.2f °C  K=%s  t1/3=%.1f s  t2/3=%.1f s  Q=%.2f" % (
             name, y_inf - y0, "%.4f °C/%%" % K if K is not None else "  -   ",
@@ -182,8 +190,8 @@ def main():
                                   gridspec_kw={"height_ratios": [3, 1]})
     ax.plot(d["t"], d["temp"], ".", ms=2, color="0.5", label="Mælt hitastig")
     allsegs = [startup] + steps
-    for (u, t, y), st, lv in zip(segs, allsegs, levels):
-        tt = t - t[0]
+    for j, ((u, t, y), st, lv) in enumerate(zip(segs, allsegs, levels)):
+        tt = t - (t_starts[j] if j < len(t_starts) else t[0])
         f = st["fit"]["n1"]
         fit = st["y0"] + (st["y_inf"] - st["y0"]) * unit_step(1, (tt - f["theta"]) / f["T"])
         ax.plot(t, fit, "-", lw=1.5, label="FOPDT %s: tau=%.0f s, theta=%.1f s" % (st["name"], f["T"], f["theta"]))

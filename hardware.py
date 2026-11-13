@@ -125,19 +125,28 @@ class Hardware:
             if cooldown > 0:
                 self.set_fan(100)
                 print("Kæli með viftu á 100%% í allt að %.0f s (Ctrl+C til að sleppa)..." % cooldown)
+                end = self.now() + cooldown
                 try:
-                    end = self.now() + cooldown
                     while self.now() < end:
-                        if self.read_temp() < 35.0:
-                            break
+                        try:
+                            if self.read_temp() < 35.0:
+                                break
+                        except Exception:
+                            # t.d. OverTemperature eða lestrarvilla: halda áfram
+                            # að kæla út tímann án þess að lesa nemann
+                            time.sleep(max(0.0, end - self.now()))
                 except KeyboardInterrupt:
                     pass
             self.set_fan(0)
-            self.fan_power(False)
             self._pwm.stop()
         finally:
-            G.cleanup()
-            print("GPIO hreinsað.")
+            # Relay-pinnarnir eru látnir VERA úttök með HIGH (= slökkt) eftir
+            # að forritið hættir. GPIO.cleanup() á þá myndi gera þá að fljótandi
+            # inntökum og þá er ekki tryggt að segulrofarnir séu slökktir.
+            self.heater(False)
+            self.fan_power(False)
+            G.cleanup([config.FAN_PWM_PIN, config.TACH_PIN])
+            print("GPIO hreinsað (relay-pinnar skildir eftir á SLÖKKT).")
 
 
 # ---------------------------------------------------------------------------
@@ -226,7 +235,21 @@ class SimHardware:
         print("[hermir] Slökkt á hitagjafa.")
 
 
+def _install_signal_handlers():
+    """SIGTERM/SIGHUP (t.d. ef SSH tenging slitnar) -> KeyboardInterrupt, svo
+    að finally: hw.close() keyri og slökkvi á hitagjafanum."""
+    import signal
+
+    def handler(signum, frame):
+        raise KeyboardInterrupt("merki %d" % signum)
+
+    for name in ("SIGTERM", "SIGHUP"):
+        if hasattr(signal, name):
+            signal.signal(getattr(signal, name), handler)
+
+
 def make_hardware(sim=False, speed=0.0):
+    _install_signal_handlers()
     if sim:
         print("*** HERMIR - enginn vélbúnaður notaður ***")
         return SimHardware(speed=speed)
