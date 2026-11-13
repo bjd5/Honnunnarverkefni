@@ -31,7 +31,7 @@ def main():
     args = ap.parse_args()
 
     files = {}
-    patterns = ["step1_equilibrium.csv", "model.json", "part*_v*.csv", "part*_v*_design.json"]
+    patterns = ["step1_equilibrium*.csv", "model.json", "part*_v*.csv", "part*_v*_design.json"]
     for pat in patterns:
         for p in sorted(glob.glob(os.path.join(config.DATA_DIR, pat))):
             with open(p, encoding="utf-8") as f:
