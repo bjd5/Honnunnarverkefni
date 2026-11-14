@@ -181,7 +181,8 @@ const EMB = JSON.parse(document.getElementById("embedded-data").textContent);
 let state = { files: {}, label: "", real: false, tab: "p1", showSettle: false, showMeas: true };
 
 function loadEmbedded() {
-  state.files = Object.assign({}, EMB.files || {});
+  state.files = {};
+  Object.entries(EMB.files || {}).forEach(([n, txt]) => state.files[canonicalName(n, txt)] = txt);
   state.label = EMB.label || "";
   state.real = !!EMB.real;
   state.dropped = false;
@@ -328,7 +329,7 @@ function lineChart(el, cfg) {
     if (px < m.l || px > W - m.r) return leave();
     const x = x0 + (px - m.l) / (W - m.l - m.r) * (x1 - x0);
     cross.setAttribute("x1", px); cross.setAttribute("x2", px); hov.setAttribute("visibility", "visible");
-    let h = `<b>t = ${x.toFixed(0)} s</b>`;
+    let h = `<b>${cfg.xName || "t"} = ${x.toFixed(0)}${cfg.xUnit ? " " + cfg.xUnit : ""}</b>`;
     cfg.series.forEach((se, i) => {
       if (se.tip === false || !se.pts.length) return;
       const p = nearest(se.pts, x), dot = svg.querySelector("#hd" + i);
@@ -347,6 +348,7 @@ function lineChart(el, cfg) {
 // ---------------------------------------------------------------- uppsetning
 const TABS = [
   ["eq", "Jafnvægi", () => !!state.files["step1_equilibrium.csv"]],
+  ["fan", "Vifta", () => fanTests().length > 0],
   ["p1", "Liður 1", () => runData(1, "v1") || runData(1, "v2")],
   ["p2", "Liður 2", () => runData(2, "v1") || runData(2, "v2")],
   ["p3", "Liður 3", () => runData(3, "v1") || runData(3, "v2")],
@@ -399,7 +401,7 @@ function chip(c) {
 function render() {
   renderTabs();
   const p = document.getElementById("panel");
-  if (state.tab === "eq") renderEq(p); else renderPart(p, +state.tab.slice(1));
+  if (state.tab === "eq") renderEq(p); else if (state.tab === "fan") renderFan(p); else renderPart(p, +state.tab.slice(1));
   const back = document.getElementById("back");
   if (back) back.onclick = () => { loadEmbedded(); render(); };
   p.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => document.getElementById("file").click());
@@ -479,6 +481,29 @@ function renderPart(p, part) {
   lineChart(document.getElementById("ch-u"), { series: sU, height: 170, unit: "%", xUnit: "s", yMin: 0, yMax: 100, yTicks: 4, tipDigits: 1, bands, aria: "Duty cycle viftu" });
 }
 
+function fanTests() {
+  return Object.keys(state.files).map(n => n.match(/^fan_test_([\d.]+)Hz\.csv$/)).filter(Boolean)
+    .map(m => ({ name: m[0], hz: +m[1], rows: parseCSV(state.files[m[0]]) })).sort((a, b) => a.hz - b.hz);
+}
+const hzName = hz => hz >= 1000 ? `${+(hz / 1000).toFixed(2)} kHz` : `${hz} Hz`;
+
+function renderFan(p) {
+  const tests = fanTests();
+  const hero = `<section class="hero"><span class="eyebrow">Viftupróf</span><h1>Svörun viftu</h1><p>Hitagjafinn er slökktur og snúningshraði viftunnar mældur með Hall-nemanum fyrir hvert duty cycle, eitt próf fyrir hverja PWM tíðni.</p>${sourceLine()}</section>`;
+  if (!tests.length) { p.innerHTML = hero + emptyState("Engin viftupróf", `Hlaðið inn <span class="mono">fan_test_1000Hz.csv</span> eða sambærilegum skrám.`); return; }
+  const cols = ["--v1", "--v2", "--sp", "--good"];
+  const color = i => css(cols[i % cols.length]);
+  const duties = [...new Set(tests.flatMap(t => t.rows.map(r => r.duty)))].sort((a, b) => a - b);
+  const legend = tests.map((t, i) => `<span style="color:${color(i)}"><i></i><em>${hzName(t.hz)}</em></span>`).join("");
+  const head = tests.map(t => `<th class="num">${hzName(t.hz)} [rpm]</th>`).join("");
+  const body = duties.map(d => `<tr><td class="name">${d}%</td>${tests.map(t => { const r = t.rows.find(x => x.duty === d); return `<td class="num">${r ? fmt(r.rpm, 0) : "–"}</td>`; }).join("")}</tr>`).join("");
+  p.innerHTML = hero + `
+    <div class="card"><div class="card-head"><h3>Snúningshraði eftir duty cycle</h3><div class="legend">${legend}</div></div><div class="chart" id="ch-fan"></div></div>
+    <h2 class="section-title">Mælingar</h2><div class="tablecard"><table><thead><tr><th>Duty</th>${head}</tr></thead><tbody>${body}</tbody></table></div>
+    <p class="note">Hver lína er ein PWM tíðni. Línurnar sýna hvort viftan svarar duty cycle línulega og hvort tíðnin hafi áhrif á lágmarks- og hámarkshraða.</p>`;
+  lineChart(document.getElementById("ch-fan"), { series: tests.map((t, i) => ({ name: hzName(t.hz), color: color(i), width: 2, pts: t.rows.map(r => [r.duty, r.rpm]) })), height: 340, unit: " rpm", xUnit: "%", xName: "duty", yMin: 0, tipDigits: 0, aria: "Snúningshraði viftu eftir duty cycle" });
+}
+
 function renderEq(p) {
   const txt = state.files["step1_equilibrium.csv"];
   const hero = `<section class="hero"><span class="eyebrow">Liður 1B</span><h1>Jafnvægishitastig</h1><p>Hitagjafinn er í gangi og viftan keyrð á 20%, 50% og 80% duty cycle í röð. Jafnvægi telst náð þegar hallatala síðustu 120 sekúndna fer undir 0,1 °C á mínútu.</p>${sourceLine()}</section>`;
@@ -512,17 +537,35 @@ function renderEq(p) {
 
 // ---------------------------------------------------------------- skráainnlestur
 function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 3200); }
+// Vafrar endurnefna niðurhal ("step1_equilibrium (1).csv", "..._1.csv") og fólk bætir við
+// viðskeytum ("..._25kHz.csv"). Mælaborðið flettir upp eftir nákvæmu nafni, svo nafninu er
+// varpað á staðlað form út frá nafninu sjálfu eða, ef það dugar ekki, haus/innihaldi skrárinnar.
+function canonicalName(name, txt) {
+  const low = name.toLowerCase();
+  let m = low.match(/part\s*(\d)[ _-]*(v\d)/);
+  if (m) return `part${m[1]}_${m[2]}` + (/design/.test(low) || /\.json$/.test(low) ? "_design.json" : ".csv");
+  if (/step1|equilibrium/.test(low) && /\.csv$/.test(low)) return "step1_equilibrium.csv";
+  if (/model/.test(low) && /\.json$/.test(low)) return "model.json";
+  if (/\.csv$/.test(low)) {
+    const head = (txt.split(/\r?\n/, 1)[0] || "").split(",").map(h => h.trim());
+    if (["t", "duty", "temp"].every(h => head.includes(h)) && !head.includes("phase")) return "step1_equilibrium.csv";
+  } else {
+    try { const j = JSON.parse(txt); if (j && (j.levels || j.steps)) return "model.json"; } catch {}
+  }
+  return name;
+}
 async function addFiles(list) {
   const got = [];
   for (const f of list) {
     if (!/\.(csv|json)$/i.test(f.name)) continue;
     if (!state.dropped) { state.files = {}; state.real = true; state.dropped = true; }
-    state.files[f.name.replace(/^.*[\\/]/, "")] = await f.text(); got.push(f.name);
+    const txt = await f.text();
+    state.files[canonicalName(f.name.replace(/^.*[\\/]/, ""), txt)] = txt; got.push(f.name);
   }
   if (!got.length) { toast("Engar CSV eða JSON skrár fundust."); return; }
   state.label = `${Object.keys(state.files).length} skrár`;
   toast(`${got.length} ${got.length === 1 ? "skrá lesin" : "skrár lesnar"}`);
-  const m = got.join(" ").match(/part(\d)_/); if (m) state.tab = "p" + m[1]; else if (got.some(n => /step1/.test(n))) state.tab = "eq";
+  const m = got.join(" ").match(/part(\d)_/); if (m) state.tab = "p" + m[1]; else if (got.some(n => /fan_test/i.test(n))) state.tab = "fan"; else if (state.files["step1_equilibrium.csv"] || state.files["model.json"]) state.tab = "eq";
   render();
 }
 const fileIn = document.getElementById("file"), dropEl = document.getElementById("dropzone");
