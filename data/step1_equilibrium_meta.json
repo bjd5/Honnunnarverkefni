@@ -1,0 +1,9 @@
+{
+  "levels": [
+    {"duty": 20, "t_start": 0.0018273808527737856, "t_end": 750.9046592039522, "T_eq_tail": 32.74868333333329, "rpm": 495.0, "stop": "max_time"},
+    {"duty": 50, "t_start": 752.9051214109641, "t_end": 1503.7863393588923, "T_eq_tail": 34.151299999999964, "rpm": 907.5, "stop": "max_time"},
+    {"duty": 80, "t_start": 1505.787333726883, "t_end": 2256.6646294889506, "T_eq_tail": 29.6061157024793, "rpm": 1252.5, "stop": "max_time"}
+  ],
+  "args": {"sim": false, "levels": [20, 50, 80], "min_time": 240.0, "max_time": 750.0, "window": 120, "slope": 0.1, "hold": 60,
+           "out": "/home/nemandi/hopur-bjorn/Honnunnarverkefni/data/step1_equilibrium.csv"}
+}
