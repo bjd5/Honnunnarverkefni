@@ -1,0 +1,13 @@
+{
+  "part": 2,
+  "version": "v2",
+  "description": "PI, SIMC tc = 2*theta, gain scheduling, anti-windup, d\u00fdnam\u00edskt feedforward me\u00f0 fors\u00fdn (preview = theta)",
+  "preview": 3.5,
+  "K": -0.1524139761847884,
+  "tau": 56.26021579998002,
+  "theta": 3.0,
+  "theta_eff": 3.5,
+  "tc": 12.0,
+  "kc": 23.81468834284276,
+  "ti": 56.26021579998002
+}
