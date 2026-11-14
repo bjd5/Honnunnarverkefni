@@ -187,19 +187,19 @@ python3 run_part3.py v2
 ```
 
 Hver keyrsla byrjar á **aðlögunartíma** (settle): stýringin er virk við T50 þar
-til hitinn hefur verið innan ±0,3 °C í 30 s (mest 600 s). Þá hefst sjálf
+til hitinn hefur verið innan ±0,3 °C í 30 s (mest 300 s). Þá hefst sjálf
 keyrslan og t = 0. Gagnlegir rofar: `--quiet` (prenta á 10 s fresti),
 `--settle-max`, `--settle-hold`, `--tol`.
 
 | Keyrsla | Aðlögun | Óskgildisferill | Kæling í lokin | Samtals |
 |---|---|---|---|---|
-| `run_part1.py` | 0,5–10 mín | 240 s | ≤ 1 mín | **~6–15 mín** |
-| `run_part2.py` | 0,5–10 mín | 780 s (180+120+180+120+180) | ≤ 1 mín | **~15–25 mín** |
-| `run_part3.py` | 0,5–10 mín | 780 s | ≤ 1 mín | **~15–25 mín** |
+| `run_part1.py` | 0,5–5 mín | 240 s | ≤ 1 mín | **~6–10 mín** |
+| `run_part2.py` | 0,5–5 mín | 780 s (180+120+180+120+180) | ≤ 1 mín | **~15–19 mín** |
+| `run_part3.py` | 0,5–5 mín | 780 s | ≤ 1 mín | **~15–19 mín** |
 
 Allar sex keyrslurnar taka því um 1,5–2 klst. Ráð: keyrið þær beint hver á eftir
 annarri meðan kerfið er heitt - þá styttist aðlögunin. Ef byrjað er kalt getur
-upphitunin tekið lengri tíma en 600 s; hækkið þá `--settle-max`.
+upphitunin tekið lengri tíma en 300 s; hækkið þá `--settle-max`.
 
 Úttak: `data/partN_vX.csv` (t, fasi, r, y, y_meas, y_filt, u, u_ff, P, I, Kc,
 Ti) og `data/partN_vX_design.json` (líkan og stillistuðlar sem voru notaðir).
