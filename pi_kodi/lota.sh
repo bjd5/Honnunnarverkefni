@@ -3,6 +3,7 @@
 # vefþjón á gátt 8000 svo hægt sé að sækja gögnin á http://<vél>:8000/data/
 #
 #   ./lota.sh 1    jafnvægismæling: fan_test + step1_equilibrium      (~40 mín)
+#   ./lota.sh kort kyrrstöðuferill T(u): 40,30,40,50,60,70,80 %, 5,5 mín hvert (~40 mín)
 #   ./lota.sh 2    liður 1 v1, liður 1 v2, liður 2 v1                  (~39 mín)
 #   ./lota.sh 3    liður 2 v2, liður 3 v1                              (~38 mín)
 #   ./lota.sh 4    liður 3 v2                                          (~19 mín)
@@ -30,12 +31,15 @@ if [ "$LOTA" = "stop" ]; then
   exit 0
 fi
 
+DATA=../data; [ -n "$SIM" ] && DATA=../data_sim
+
 case "$LOTA" in
   1) MIN=41; CMDS="python3 -u fan_test.py $SIM && python3 -u step1_equilibrium.py --min-time 240 --max-time 750 $SIM" ;;
+  kort) MIN=41; CMDS="python3 -u step1_equilibrium.py --levels 40 30 40 50 60 70 80 --min-time 300 --max-time 330 --out $DATA/step1_kort.csv $SIM" ;;
   2) MIN=40; CMDS="python3 -u run_part1.py v1 $SIM && python3 -u run_part1.py v2 $SIM && python3 -u run_part2.py v1 $SIM" ;;
   3) MIN=39; CMDS="python3 -u run_part2.py v2 $SIM && python3 -u run_part3.py v1 $SIM" ;;
   4) MIN=20; CMDS="python3 -u run_part3.py v2 $SIM" ;;
-  *) echo "Notkun: ./lota.sh 1|2|3|4 [--sim] [--force]   eða   ./lota.sh stop"; exit 1 ;;
+  *) echo "Notkun: ./lota.sh 1|kort|2|3|4 [--sim] [--force]   eða   ./lota.sh stop"; exit 1 ;;
 esac
 
 # Er eitthvað þegar í gangi?
@@ -44,8 +48,7 @@ if pgrep -f "run_part|step1_equilibrium|fan_test" >/dev/null; then
 fi
 
 # Þarf líkan fyrir liði 1-3
-DATA=../data; [ -n "$SIM" ] && DATA=../data_sim
-if [ "$LOTA" != "1" ] && [ ! -f "$DATA/model.json" ]; then
+if [ "$LOTA" != "1" ] && [ "$LOTA" != "kort" ] && [ ! -f "$DATA/model.json" ]; then
   echo "VILLA: $DATA/model.json vantar. Það verður til úr jafnvægismælingunni (lota 1)."
   exit 1
 fi
