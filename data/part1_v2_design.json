@@ -1,0 +1,13 @@
+{
+  "part": 1,
+  "version": "v2",
+  "description": "PI, SIMC tc = 2*theta (hra\u00f0ari), l\u00edkan vi\u00f0 \u00f3skgildi, anti-windup, kyrrst\u00f6\u00f0u-feedforward",
+  "preview": 0.0,
+  "K": -0.1524139761847884,
+  "tau": 56.26021579998002,
+  "theta": 3.0,
+  "theta_eff": 3.5,
+  "tc": 12.0,
+  "kc": 23.81468834284276,
+  "ti": 56.26021579998002
+}
