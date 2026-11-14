@@ -36,7 +36,8 @@ def load_model(path=config.MODEL_FILE):
 
 
 def _eq_points(model):
-    pts = sorted((lv["T_eq"], lv["duty"]) for lv in model["levels"])
+    lv_all = model.get("map_levels") or model["levels"]
+    pts = sorted((lv["T_eq"], lv["duty"]) for lv in lv_all)
     return pts  # [(T, u), ...] í hækkandi T
 
 
@@ -53,7 +54,7 @@ def u_static(model, T):
         u = _lagrange(pts, Tb) + du_dT(model, Tb) * (T - Tb)
     else:
         u = _lagrange(pts, T)
-    return min(max(u, config.DUTY_MIN), config.DUTY_MAX)
+    return min(max(u, model.get("u_min", config.DUTY_MIN)), config.DUTY_MAX)
 
 
 def du_dT(model, T):
@@ -107,7 +108,9 @@ def simc(K, tau, theta, tc):
 # ---------------------------------------------------------------------------
 # Útgáfur stýringa
 # ---------------------------------------------------------------------------
-#  tc_tau / tc_theta: tc = max(tc_tau*tau, tc_theta*theta_eff)
+#  tc_tau / tc_theta / tc_min: tc = max(tc_tau*tau, tc_theta*theta_eff, tc_min)
+#     tc_min [s] er gólf svo mögnunin verði ekki of mikil miðað við suð í mælingu
+#     (á raspi3 er staðalfrávik mælingar ~0,3 °C við fasta viftu)
 #  model:     "avg" = eitt meðallíkan, "local" = líkan við óskgildi (scheduling)
 #  ff:        None, "static" (u_ss(r)) eða "dynamic" (u_ss(r) + tau*du/dT*dr/dt)
 #  preview:   nota r(t + theta) í framvirku stýringunni
@@ -118,30 +121,31 @@ PRESETS = {
                    tc_tau=1 / 3, model="avg", antiwindup=False, ff=None),
         "v2": dict(desc="PI, SIMC tc = 2*theta (hraðari), líkan við óskgildi, "
                         "anti-windup, kyrrstöðu-feedforward",
-                   tc_theta=2.0, model="local", antiwindup=True, ff="static"),
+                   tc_theta=2.0, tc_min=12.0, model="local", antiwindup=True, ff="static"),
     },
     2: {
         "v1": dict(desc="PI, lambda-stilling tc = tau/3, meðallíkan, anti-windup",
                    tc_tau=1 / 3, model="avg", antiwindup=True, ff=None),
         "v2": dict(desc="PI, SIMC tc = 2*theta, gain scheduling, anti-windup, "
                         "dýnamískt feedforward með forsýn (preview = theta)",
-                   tc_theta=2.0, model="schedule", antiwindup=True, ff="dynamic",
+                   tc_theta=2.0, tc_min=12.0, model="schedule", antiwindup=True, ff="dynamic",
                    preview=True),
     },
     3: {
         "v1": dict(desc="Sama og endurbætt stýring í lið 2 (engar síur)",
-                   tc_theta=2.0, model="schedule", antiwindup=True, ff="dynamic",
+                   tc_theta=2.0, tc_min=12.0, model="schedule", antiwindup=True, ff="dynamic",
                    preview=True),
         "v2": dict(desc="Liður 2 v2 + hakasía (notch) við 1/8 Hz og lágtíðnisía á mælingu, "
                         "tc stækkað til að taka tillit til fasavik síanna",
-                   tc_theta=3.0, model="schedule", antiwindup=True, ff="dynamic",
+                   tc_theta=3.0, tc_min=18.0, model="schedule", antiwindup=True, ff="dynamic",
                    preview=True, notch=True, notch_q=1.0, lp_tf=1.0),
     },
 }
 
 
 def _tc(spec, tau, theta):
-    return max(spec.get("tc_tau", 0.0) * tau, spec.get("tc_theta", 0.0) * theta)
+    return max(spec.get("tc_tau", 0.0) * tau, spec.get("tc_theta", 0.0) * theta,
+               spec.get("tc_min", 0.0))
 
 
 def build_controller(part, version, model, ts=config.TS, noise_period=8.0):
@@ -188,7 +192,7 @@ def build_controller(part, version, model, ts=config.TS, noise_period=8.0):
     # bætir aðeins upp dauðtíma kerfisins + hálfan söfnunartíma.
     preview = (theta + ts / 2) if spec.get("preview") else 0.0
 
-    pid = PID(kc, ti, sign=sign, umin=config.DUTY_MIN, umax=config.DUTY_MAX,
+    pid = PID(kc, ti, sign=sign, umin=model.get("u_min", config.DUTY_MIN), umax=config.DUTY_MAX,
               antiwindup=spec["antiwindup"])
     ctrl = Controller("lidur%d_%s" % (part, version), pid, filters=filters,
                       feedforward=feedforward, schedule=schedule,

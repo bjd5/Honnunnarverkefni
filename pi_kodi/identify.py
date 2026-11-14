@@ -28,6 +28,8 @@ import numpy as np
 
 import config
 
+THETA_MIN = 3.0  # [s] neðri mörk á dauðtíma (DS18B20 umbreyting ~0,75 s + söfnun 1 s + flutningur lofts)
+
 
 def load_csv(path):
     with open(path) as f:
@@ -91,6 +93,9 @@ def step_identify(t, y, y0, y_inf):
         x1, x2 = x_levels(n)
         T = (t23 - t13) / (x2 - x1)
         theta = max(t13 - T * x1, 0.0)
+        if not (T > 0):
+            out["n%d" % n] = {"T": float("nan"), "theta": float("nan"), "rms": float("nan")}
+            continue
         model = y0 + (y_inf - y0) * unit_step(n, (t - theta) / T)
         rms = float(np.sqrt(np.mean((model - y) ** 2)))
         out["n%d" % n] = {"T": T, "theta": theta, "rms": rms}
@@ -134,7 +139,7 @@ def main():
         segs.append((u, t, y))
 
     print("\n=== Þrepasvaranir (t1/3, t2/3 aðferð) ===")
-    steps = []
+    steps, rejected = [], []
     for i in range(len(segs)):
         u1, t, y = segs[i]
         # Tími mældur frá því að þrepið var sett á (t_start úr meta), ekki frá
@@ -163,14 +168,38 @@ def main():
         entry = dict(name=name, u0=u0, u1=u1, y0=y0, y_inf=y_inf, K=K,
                      T_mid=(y0 + y_inf) / 2, tau=res["n1"]["T"], theta=res["n1"]["theta"],
                      fit=res)
-        if K is not None:
-            steps.append(entry)
-        else:
+        if K is None:
             startup = entry
+        elif K >= 0 or not (res["n1"]["T"] > 0):
+            # Hitinn breyttist í öfuga átt (eða ekkert mat): kerfið er ekki
+            # eintóna á þessu bili og þrepið er ekki notað í líkanið.
+            entry["ogilt"] = "K >= 0 eða ekkert mat - ekki notað"
+            print("           -> ÓGILT: hitinn fór ekki niður þegar viftan jókst; ekki notað")
+            rejected.append(entry)
+        else:
+            if entry["theta"] < THETA_MIN:
+                print("           -> theta %.1f s < %.1f s, sett = %.1f s (umbreytingartími nema + söfnun)"
+                      % (entry["theta"], THETA_MIN, THETA_MIN))
+                entry["theta"] = THETA_MIN
+            steps.append(entry)
 
     by_duty = {lv["duty"]: lv["T_eq"] for lv in levels}
-    model = dict(levels=levels, steps=steps, startup=startup,
+    # Kyrrstöðukort: aðeins "kæligreinin", þ.e. frá því duty cycle sem gefur
+    # hæsta jafnvægishitann og upp úr. Þar lækkar hitinn þegar viftan eykst.
+    srt = sorted(levels, key=lambda lv: lv["duty"])
+    i_peak = max(range(len(srt)), key=lambda i: srt[i]["T_eq"])
+    map_levels = [dict(duty=lv["duty"], T_eq=lv["T_eq"]) for lv in srt[i_peak:]]
+    u_min = max(0.0, srt[i_peak]["duty"] - 5.0) if i_peak > 0 else 0.0
+    model = dict(levels=levels, steps=steps, rejected=rejected, startup=startup,
+                 map_levels=map_levels, u_min=u_min,
                  T20=by_duty.get(20.0), T50=by_duty.get(50.0), T80=by_duty.get(80.0))
+    if i_peak > 0:
+        print("\nATH: hæsti jafnvægishiti er við %.0f %% en ekki við lægsta duty cycle."
+              % srt[i_peak]["duty"])
+        print("     Kyrrstöðukort notar %s %% og stýrimerkið er takmarkað við u >= %.0f %%."
+              % ([lv["duty"] for lv in map_levels], u_min))
+    if not steps:
+        raise SystemExit("Ekkert gilt þrep fannst - ekki hægt að búa til líkan.")
     if model["T20"] is not None and model["T80"] is not None:
         model["noise_amp"] = 0.03 * abs(model["T20"] - model["T80"])
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
@@ -189,8 +218,13 @@ def main():
     fig, (ax, ax2) = plt.subplots(2, 1, figsize=(10, 7), sharex=True,
                                   gridspec_kw={"height_ratios": [3, 1]})
     ax.plot(d["t"], d["temp"], ".", ms=2, color="0.5", label="Mælt hitastig")
-    allsegs = [startup] + steps
+    by_name = {e["name"]: e for e in [startup] + steps + rejected}
+    allsegs = [by_name[n] for n in [startup["name"]] + ["%g->%g" % (segs[i - 1][0], segs[i][0]) for i in range(1, len(segs))]]
     for j, ((u, t, y), st, lv) in enumerate(zip(segs, allsegs, levels)):
+        if st.get("ogilt") or not (st["fit"]["n1"]["T"] > 0):
+            ax.hlines(lv["T_eq"], t[0], t[-1], colors="k", linestyles="--", lw=0.8)
+            ax.text(t[-1], lv["T_eq"], " %.2f °C" % lv["T_eq"], va="bottom", ha="right")
+            continue
         tt = t - (t_starts[j] if j < len(t_starts) else t[0])
         f = st["fit"]["n1"]
         fit = st["y0"] + (st["y_inf"] - st["y0"]) * unit_step(1, (tt - f["theta"]) / f["T"])
