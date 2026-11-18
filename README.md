@@ -92,7 +92,7 @@ greiningu.
 | Líkan (þrep 50 → 80 %) | K = −0,152 °C/%, τ = 56,3 s, θ = 3,0 s |
 | Þrep 20 → 50 % | Hafnað af `identify.py` (K ≥ 0, ekkert FOPDT mat), ekki notað í hönnun |
 | Lægsta duty í feedforward (`u_min`) | 45 % |
-| Suð í mælingu | ≈ 0,10 °C |
+| Útslag truflunar í lið 3 (`noise_amp`) | 0,03 · \|T20 − T80\| ≈ 0,10 °C |
 
 Athugið að í þessum mælingum er **T50 > T20**, öfugt við það sem búist var
 við (T20 > T50 > T80). Þess vegna byggja líkanið og feedforward-ferillinn
