@@ -57,10 +57,60 @@ PI + feedforward → mettun 0–100 % → stilla viftu → skrá í CSV.
 | `pi_kodi/run_part1.py`, `run_part2.py`, `run_part3.py` | Keyra lið 1/2/3 með `v1` eða `v2` |
 | `pi_kodi/analyze.py` | Mælikvarðar (tafla í Markdown + `data/metrics.csv`) og gröf `figures/partN.png` |
 | `requirements.txt` | Python pakkar |
-| `data/` | Mæligögn: `step1_equilibrium.csv`, `model.json`, `partN_vX.csv`, `partN_vX_design.json`, `metrics.csv` |
+| `data/` | Raunmælingar af Pi, sjá [Mæligögn](#mæligögn-data) hér að neðan |
 | `figures/` | Gröf: `step1.png`, `part1.png`, `part2.png`, `part3.png` |
 | `data_sim/`, `figures_sim/` | Sama fyrir hermi (í `.gitignore`) |
 | `maelabord/` | Gagnvirkt mælaborð í vafra: `template.html` (síðan), `make_dashboard.py` (byggir `maelabord.html` með gögnunum innbyggðum) |
+
+## Mæligögn (`data/`)
+
+Raunmælingar af Raspberry Pi (sömu gögn og eru innbyggð í mælaborðinu, mæld
+2026-11-14). Söfnunartími er T = 1 s nema í viftuprófunum.
+
+| Skrá | Innihald | Dálkar |
+|---|---|---|
+| `step1_equilibrium.csv` | Liður 1B: þrep 20 → 50 → 80 % duty, ~2257 s alls (2250 mælingar) | `t, duty, temp` |
+| `step1_equilibrium_25kHz.csv` | Eldri jafnvægismæling með PWM tíðni 25 kHz (til samanburðar) | `t, duty, temp` |
+| `model.json` | Úttak `identify.py`: jafnvægishitastig, FOPDT líkan, höfnuð þrep | sjá hér að neðan |
+| `part1_v1.csv`, `part1_v2.csv` | Liður 1, fast óskgildi T50, 240 s keyrsla | `t_abs, t, phase, r, y, y_meas, y_filt, u, u_ff, p, i, kc, ti` |
+| `part2_v1.csv`, `part2_v2.csv` | Liður 2, óskgildisferill T50 → T20 → T80, 780 s keyrsla | sama |
+| `part3_v1.csv` | Liður 3 v1, ferill liðar 2 með sínustruflun, 780 s keyrsla | sama |
+| `partN_vX_design.json` | Líkan og stillistuðlar sem voru notaðir í hverri keyrslu (K, τ, θ, θ_eff, τc, Kc, Ti, preview) | - |
+| `fan_test_<f>Hz.csv` | Snúningshraði viftu (Hall-nemi) við 0–100 % duty, eitt próf fyrir hverja PWM tíðni: 100, 500, 1000, 2000 og 25000 Hz | `duty, rpm` |
+
+Í `partN_vX.csv` er `phase` annaðhvort `settle` (aðlögun fyrir keyrslu, t
+autt) eða `run` (sjálf keyrslan, t = 0 … lok). Aðeins `run` er notað í
+greiningu.
+
+**Niðurstöður auðkenningar (`model.json`):**
+
+| | Gildi |
+|---|---|
+| T20 / T50 / T80 | 32,84 / 34,03 / 29,46 °C |
+| Líkan (þrep 50 → 80 %) | K = −0,152 °C/%, τ = 56,3 s, θ = 3,0 s |
+| Þrep 20 → 50 % | Hafnað af `identify.py` (K ≥ 0, ekkert FOPDT mat), ekki notað í hönnun |
+| Lægsta duty í feedforward (`u_min`) | 45 % |
+| Suð í mælingu | ≈ 0,10 °C |
+
+Athugið að í þessum mælingum er **T50 > T20**, öfugt við það sem búist var
+við (T20 > T50 > T80). Þess vegna byggja líkanið og feedforward-ferillinn
+(`map_levels`) aðeins á 50 % og 80 % punktunum.
+
+**Stillistuðlar sem voru notaðir** (úr `partN_vX_design.json`, θ_eff = 3,5 s
+alls staðar):
+
+| Keyrsla | τc (s) | Kc (%/°C) | Ti (s) | Preview (s) |
+|---|---|---|---|---|
+| `part1_v1`, `part2_v1` | 18,75 | 16,6 | 56,3 | 0 |
+| `part1_v2` | 12,0 | 23,8 | 56,3 | 0 |
+| `part2_v2`, `part3_v1` | 12,0 | 23,8 | 56,3 | 3,5 |
+
+**Viftupróf:** viftan snýst frá ~225–240 sn./mín (0 % duty) upp í
+~1425–1448 sn./mín (100 %) við allar tíðnir. 1 kHz var valið sem PWM tíðni
+(`FAN_PWM_FREQ` í `config.py`).
+
+**Vantar enn:** `part3_v2.csv` (liður 3 v2), `step1_equilibrium_meta.json` og
+`metrics.csv` (búið til með `python3 analyze.py`).
 
 ## Tengingar (BCM númerun, úr `config.py`)
 
