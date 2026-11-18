@@ -68,7 +68,7 @@ def main(part):
     ap.add_argument("version", choices=["v1", "v2"], help="v1 = upprunaleg, v2 = endurbætt stýring")
     ap.add_argument("--sim", action="store_true", help="nota hermi")
     ap.add_argument("--speed", type=float, default=0.0, help="hermir: hraði miðað við rauntíma (0 = ótakmarkað)")
-    ap.add_argument("--settle-max", type=float, default=600, help="hámarks aðlögunartími [s]")
+    ap.add_argument("--settle-max", type=float, default=300, help="hámarks aðlögunartími [s]")
     ap.add_argument("--settle-hold", type=float, default=30, help="tími innan tol áður en keyrsla hefst [s]")
     ap.add_argument("--tol", type=float, default=0.3, help="vikmörk aðlögunar [°C]")
     ap.add_argument("--model", default=config.MODEL_FILE)

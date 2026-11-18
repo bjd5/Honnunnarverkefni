@@ -64,19 +64,21 @@ PI + feedforward → mettun 0–100 % → stilla viftu → skrá í CSV.
 
 ## Mæligögn (`data/`)
 
-Raunmælingar af Raspberry Pi (sömu gögn og eru innbyggð í mælaborðinu, mæld
-2026-11-14). Söfnunartími er T = 1 s nema í viftuprófunum.
+Raunmælingar af Raspberry Pi #3 (raspi3, sömu gögn og eru innbyggð í
+mælaborðinu, mæld 2026-11-14). Söfnunartími er T = 1 s nema í viftuprófunum.
 
 | Skrá | Innihald | Dálkar |
 |---|---|---|
 | `step1_equilibrium.csv` | Liður 1B: þrep 20 → 50 → 80 % duty, ~2257 s alls (2250 mælingar) | `t, duty, temp` |
-| `step1_equilibrium_25kHz.csv` | Eldri jafnvægismæling með PWM tíðni 25 kHz (til samanburðar) | `t, duty, temp` |
+| `step1_equilibrium_meta.json` | Lýsigögn jafnvægismælingarinnar (úttak `step1_equilibrium.py`) | - |
 | `model.json` | Úttak `identify.py`: jafnvægishitastig, FOPDT líkan, höfnuð þrep | sjá hér að neðan |
 | `part1_v1.csv`, `part1_v2.csv` | Liður 1, fast óskgildi T50, 240 s keyrsla | `t_abs, t, phase, r, y, y_meas, y_filt, u, u_ff, p, i, kc, ti` |
 | `part2_v1.csv`, `part2_v2.csv` | Liður 2, óskgildisferill T50 → T20 → T80, 780 s keyrsla | sama |
 | `part3_v1.csv` | Liður 3 v1, ferill liðar 2 með sínustruflun, 780 s keyrsla | sama |
 | `partN_vX_design.json` | Líkan og stillistuðlar sem voru notaðir í hverri keyrslu (K, τ, θ, θ_eff, τc, Kc, Ti, preview) | - |
-| `fan_test_<f>Hz.csv` | Snúningshraði viftu (Hall-nemi) við 0–100 % duty, eitt próf fyrir hverja PWM tíðni: 100, 500, 1000, 2000 og 25000 Hz | `duty, rpm` |
+| `fan_test_<f>Hz.csv` | Snúningshraði viftu (Hall-nemi) við 0–100 % duty, eitt próf fyrir hverja PWM tíðni: 500, 1000, 2000 og 25000 Hz | `duty, rpm` |
+| `metrics.csv` | Mælikvarðar v1 vs. v2 fyrir hvern lið (úttak `analyze.py`) | - |
+| `raspi4/` | Eldri mælingar af raspi4 (viftupróf við 100 Hz, 1 kHz og 25 kHz og jafnvægismæling við 25 kHz), ekki notaðar í hönnun, sjá `raspi4/LESTU.md` | - |
 
 Í `partN_vX.csv` er `phase` annaðhvort `settle` (aðlögun fyrir keyrslu, t
 autt) eða `run` (sjálf keyrslan, t = 0 … lok). Aðeins `run` er notað í
@@ -109,8 +111,7 @@ alls staðar):
 ~1425–1448 sn./mín (100 %) við allar tíðnir. 1 kHz var valið sem PWM tíðni
 (`FAN_PWM_FREQ` í `config.py`).
 
-**Vantar enn:** `part3_v2.csv` (liður 3 v2), `step1_equilibrium_meta.json` og
-`metrics.csv` (búið til með `python3 analyze.py`).
+**Vantar enn:** `part3_v2.csv` (liður 3 v2).
 
 ## Tengingar (BCM númerun, úr `config.py`)
 
@@ -237,19 +238,19 @@ python3 run_part3.py v2
 ```
 
 Hver keyrsla byrjar á **aðlögunartíma** (settle): stýringin er virk við T50 þar
-til hitinn hefur verið innan ±0,3 °C í 30 s (mest 600 s). Þá hefst sjálf
+til hitinn hefur verið innan ±0,3 °C í 30 s (mest 300 s). Þá hefst sjálf
 keyrslan og t = 0. Gagnlegir rofar: `--quiet` (prenta á 10 s fresti),
 `--settle-max`, `--settle-hold`, `--tol`.
 
 | Keyrsla | Aðlögun | Óskgildisferill | Kæling í lokin | Samtals |
 |---|---|---|---|---|
-| `run_part1.py` | 0,5–10 mín | 240 s | ≤ 1 mín | **~6–15 mín** |
-| `run_part2.py` | 0,5–10 mín | 780 s (180+120+180+120+180) | ≤ 1 mín | **~15–25 mín** |
-| `run_part3.py` | 0,5–10 mín | 780 s | ≤ 1 mín | **~15–25 mín** |
+| `run_part1.py` | 0,5–5 mín | 240 s | ≤ 1 mín | **~6–10 mín** |
+| `run_part2.py` | 0,5–5 mín | 780 s (180+120+180+120+180) | ≤ 1 mín | **~15–19 mín** |
+| `run_part3.py` | 0,5–5 mín | 780 s | ≤ 1 mín | **~15–19 mín** |
 
 Allar sex keyrslurnar taka því um 1,5–2 klst. Ráð: keyrið þær beint hver á eftir
 annarri meðan kerfið er heitt - þá styttist aðlögunin. Ef byrjað er kalt getur
-upphitunin tekið lengri tíma en 600 s; hækkið þá `--settle-max`.
+upphitunin tekið lengri tíma en 300 s; hækkið þá `--settle-max`.
 
 Úttak: `data/partN_vX.csv` (t, fasi, r, y, y_meas, y_filt, u, u_ff, P, I, Kc,
 Ti) og `data/partN_vX_design.json` (líkan og stillistuðlar sem voru notaðir).
