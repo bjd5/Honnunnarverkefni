@@ -1,0 +1,13 @@
+{
+  "part": 1,
+  "version": "v1",
+  "description": "PI, lambda-stilling tc = tau/3, me\u00f0all\u00edkan, ekkert anti-windup",
+  "preview": 0.0,
+  "K": -0.1524139761847884,
+  "tau": 56.26021579998002,
+  "theta": 3.0,
+  "theta_eff": 3.5,
+  "tc": 18.753405266660003,
+  "kc": 16.587468968944226,
+  "ti": 56.26021579998002
+}
