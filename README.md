@@ -73,6 +73,7 @@ mælaborðinu, mæld 2026-11-14). Söfnunartími er T = 1 s nema í viftuprófun
 | `step1_equilibrium_meta.json` | Lýsigögn jafnvægismælingarinnar (úttak `step1_equilibrium.py`) | - |
 | `model.json` | Úttak `identify.py`: jafnvægishitastig, FOPDT líkan, höfnuð þrep | sjá hér að neðan |
 | `part1_v1.csv`, `part1_v2.csv` | Liður 1, fast óskgildi T50, 240 s keyrsla | `t_abs, t, phase, r, y, y_meas, y_filt, u, u_ff, p, i, kc, ti` |
+| `part1_v1_kalt.csv` | Fyrri keyrsla liðar 1 v1 (2026-11-14), byrjaði köld: heildarliðurinn safnaðist í ≈ −580 í aðlögun (ekkert anti-windup) og stýrimerkið sat fast í 45 % alla keyrsluna. Ekki notuð í greiningu, en dæmi um windup | sama |
 | `part2_v1.csv`, `part2_v2.csv` | Liður 2, óskgildisferill T50 → T20 → T80, 780 s keyrsla | sama |
 | `part3_v1.csv`, `part3_v2.csv` | Liður 3, ferill liðar 2 með sínustruflun á mælingu, 780 s keyrsla (v2 með notch + lágtíðnisíu) | sama |
 | `partN_vX_design.json` | Líkan og stillistuðlar sem voru notaðir í hverri keyrslu (K, τ, θ, θ_eff, τc, Kc, Ti, preview) | - |
@@ -113,6 +114,13 @@ við (T20 > T50 > T80). Þess vegna byggja líkanið og feedforward-ferillinn
 (`FAN_PWM_FREQ` í `config.py`).
 
 Allar sex keyrslurnar (liðir 1–3, v1 og v2) eru komnar. `part3_v2` var mæld 2026-11-19.
+
+`part1_v1` var endurkeyrð 2026-11-19 með heitum kassa (forhitað með `run_part1.py v2`
+fyrst) svo heildarliðurinn safnaðist ekki upp. **Athugið rek í vinnupunkti:** í
+mælingunum frá 2026-11-19 (`part1_v1`, `part3_v2`) þurfti um 80–85 % duty til að halda
+T50, en um 52 % í `part1_v2` (2026-11-14). Kassinn/umhverfið var því hlýrra og |K|
+minna en líkanið gerir ráð fyrir, svo v1 og v2 í lið 1 og lið 3 eru ekki mæld við
+alveg sömu skilyrði.
 
 ## Tengingar (BCM númerun, úr `config.py`)
 
