@@ -74,7 +74,7 @@ mælaborðinu, mæld 2026-11-14). Söfnunartími er T = 1 s nema í viftuprófun
 | `model.json` | Úttak `identify.py`: jafnvægishitastig, FOPDT líkan, höfnuð þrep | sjá hér að neðan |
 | `part1_v1.csv`, `part1_v2.csv` | Liður 1, fast óskgildi T50, 240 s keyrsla | `t_abs, t, phase, r, y, y_meas, y_filt, u, u_ff, p, i, kc, ti` |
 | `part2_v1.csv`, `part2_v2.csv` | Liður 2, óskgildisferill T50 → T20 → T80, 780 s keyrsla | sama |
-| `part3_v1.csv` | Liður 3 v1, ferill liðar 2 með sínustruflun, 780 s keyrsla | sama |
+| `part3_v1.csv`, `part3_v2.csv` | Liður 3, ferill liðar 2 með sínustruflun á mælingu, 780 s keyrsla (v2 með notch + lágtíðnisíu) | sama |
 | `partN_vX_design.json` | Líkan og stillistuðlar sem voru notaðir í hverri keyrslu (K, τ, θ, θ_eff, τc, Kc, Ti, preview) | - |
 | `fan_test_<f>Hz.csv` | Snúningshraði viftu (Hall-nemi) við 0–100 % duty, eitt próf fyrir hverja PWM tíðni: 500, 1000, 2000 og 25000 Hz | `duty, rpm` |
 | `metrics.csv` | Mælikvarðar v1 vs. v2 fyrir hvern lið (úttak `analyze.py`) | - |
@@ -98,20 +98,21 @@ Athugið að í þessum mælingum er **T50 > T20**, öfugt við það sem búist
 við (T20 > T50 > T80). Þess vegna byggja líkanið og feedforward-ferillinn
 (`map_levels`) aðeins á 50 % og 80 % punktunum.
 
-**Stillistuðlar sem voru notaðir** (úr `partN_vX_design.json`, θ_eff = 3,5 s
-alls staðar):
+**Stillistuðlar sem voru notaðir** (úr `partN_vX_design.json`, θ_eff = 3,5 s nema
+í `part3_v2`):
 
 | Keyrsla | τc (s) | Kc (%/°C) | Ti (s) | Preview (s) |
 |---|---|---|---|---|
 | `part1_v1`, `part2_v1` | 18,75 | 16,6 | 56,3 | 0 |
 | `part1_v2` | 12,0 | 23,8 | 56,3 | 0 |
 | `part2_v2`, `part3_v1` | 12,0 | 23,8 | 56,3 | 3,5 |
+| `part3_v2` (θ_eff = 5,5 s með síum) | 18,0 | 15,7 | 56,3 | 3,5 |
 
 **Viftupróf:** viftan snýst frá ~225–240 sn./mín (0 % duty) upp í
 ~1425–1448 sn./mín (100 %) við allar tíðnir. 1 kHz var valið sem PWM tíðni
 (`FAN_PWM_FREQ` í `config.py`).
 
-**Vantar enn:** `part3_v2.csv` (liður 3 v2).
+Allar sex keyrslurnar (liðir 1–3, v1 og v2) eru komnar. `part3_v2` var mæld 2026-11-19.
 
 ## Tengingar (BCM númerun, úr `config.py`)
 

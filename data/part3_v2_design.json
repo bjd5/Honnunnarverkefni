@@ -1,0 +1,13 @@
+{
+  "part": 3,
+  "version": "v2",
+  "description": "Liður 2 v2 + hakasía (notch) við 1/8 Hz og lágtíðnisía á mælingu, tc stækkað til að taka tillit til fasavik síanna",
+  "preview": 3.5,
+  "K": -0.1524139761847884,
+  "tau": 56.26021579998002,
+  "theta": 3.0,
+  "theta_eff": 5.5,
+  "tc": 18.0,
+  "kc": 15.707560396343096,
+  "ti": 56.26021579998002
+}
